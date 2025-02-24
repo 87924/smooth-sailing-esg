@@ -4,7 +4,6 @@ import Navbar from '@/components/Navbar';
 import PricingCard from '@/components/PricingCard';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import SplineBackground from '@/components/SplineBackground';
 
 const Index = () => {
   const pricingPlans = [
@@ -52,8 +51,7 @@ const Index = () => {
       
       {/* Hero Section */}
       <section className="pt-32 pb-20 text-center relative overflow-hidden">
-        <SplineBackground />
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
             Sustainable Solutions for
             <span className="gradient-text block mt-2">your diverse needs</span>
