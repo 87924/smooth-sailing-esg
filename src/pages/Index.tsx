@@ -68,6 +68,32 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Info Section */}
+      <section className="py-20 relative">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="p-6 rounded-lg backdrop-blur-sm bg-white/5 hover:bg-white/10 transition-all duration-300">
+              <h3 className="text-2xl font-bold mb-4 gradient-text">Comprehensive Analysis</h3>
+              <p className="text-muted-foreground">
+                Our advanced ESG analytics provide deep insights into your organization's environmental impact, social responsibility, and governance practices.
+              </p>
+            </div>
+            <div className="p-6 rounded-lg backdrop-blur-sm bg-white/5 hover:bg-white/10 transition-all duration-300">
+              <h3 className="text-2xl font-bold mb-4 gradient-text">Real-time Monitoring</h3>
+              <p className="text-muted-foreground">
+                Stay ahead with real-time monitoring of your ESG metrics, ensuring compliance and identifying opportunities for improvement.
+              </p>
+            </div>
+            <div className="p-6 rounded-lg backdrop-blur-sm bg-white/5 hover:bg-white/10 transition-all duration-300">
+              <h3 className="text-2xl font-bold mb-4 gradient-text">Expert Support</h3>
+              <p className="text-muted-foreground">
+                Our team of ESG experts provides dedicated support to help you navigate complex sustainability challenges and achieve your goals.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Pricing Section */}
       <section className="py-20">
         <div className="container mx-auto px-4">
