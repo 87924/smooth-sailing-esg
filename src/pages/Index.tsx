@@ -94,6 +94,91 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Image Sections */}
+      <section className="py-20 bg-secondary/50">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center gap-12">
+            <div className="flex-1">
+              <h2 className="text-3xl font-bold mb-4">Collaborative Solutions</h2>
+              <p className="text-muted-foreground mb-6">
+                Work together with your team to implement effective ESG strategies. Our platform enables seamless collaboration and real-time updates for better decision-making.
+              </p>
+              <Button variant="outline">Learn More</Button>
+            </div>
+            <div className="flex-1">
+              <img 
+                src="https://images.unsplash.com/photo-1519389950473-47ba0277781c" 
+                alt="Team Collaboration" 
+                className="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col-reverse md:flex-row items-center gap-12">
+            <div className="flex-1">
+              <img 
+                src="https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7" 
+                alt="Advanced Analytics" 
+                className="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-3xl font-bold mb-4">Advanced Analytics</h2>
+              <p className="text-muted-foreground mb-6">
+                Leverage our powerful analytics tools to gain insights into your ESG performance. Track metrics, analyze trends, and make data-driven decisions.
+              </p>
+              <Button variant="outline">Explore Analytics</Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 bg-secondary/50">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center gap-12">
+            <div className="flex-1">
+              <h2 className="text-3xl font-bold mb-4">Personal Support</h2>
+              <p className="text-muted-foreground mb-6">
+                Get dedicated support from our team of ESG experts. We're here to help you navigate challenges and achieve your sustainability goals.
+              </p>
+              <Button variant="outline">Contact Us</Button>
+            </div>
+            <div className="flex-1">
+              <img 
+                src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158" 
+                alt="Expert Support" 
+                className="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col-reverse md:flex-row items-center gap-12">
+            <div className="flex-1">
+              <img 
+                src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81" 
+                alt="Data Visualization" 
+                className="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-3xl font-bold mb-4">Real-time Insights</h2>
+              <p className="text-muted-foreground mb-6">
+                Monitor your ESG metrics in real-time with our advanced visualization tools. Stay informed and make timely decisions based on the latest data.
+              </p>
+              <Button variant="outline">View Demo</Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Pricing Section */}
       <section className="py-20">
         <div className="container mx-auto px-4">
