@@ -5,7 +5,6 @@ import PricingCard from '@/components/PricingCard';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import HeroBackground from '@/components/HeroBackground';
-import SplineOverlay from '@/components/SplineOverlay';
 
 const Index = () => {
   const pricingPlans = [
@@ -50,7 +49,6 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <Navbar />
-      <SplineOverlay />
       
       {/* Hero Section */}
       <section className="pt-32 pb-20 text-center relative overflow-hidden">
