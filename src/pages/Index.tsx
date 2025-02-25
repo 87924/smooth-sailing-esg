@@ -1,12 +1,23 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import PricingCard from '@/components/PricingCard';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import HeroBackground from '@/components/HeroBackground';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 const Index = () => {
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      once: false,
+      mirror: true,
+      easing: 'ease-out-cubic'
+    });
+  }, []);
+
   const pricingPlans = [
     {
       title: "Starter Plan",
@@ -53,7 +64,7 @@ const Index = () => {
       {/* Hero Section */}
       <section className="pt-32 pb-20 text-center relative overflow-hidden">
         <HeroBackground />
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4 relative z-10" data-aos="fade-up">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
             Sustainable Solutions for
             <span className="gradient-text block mt-2">your diverse needs</span>
@@ -61,7 +72,7 @@ const Index = () => {
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
             Transform your business with our comprehensive ESG solutions. Make informed decisions that benefit both your bottom line and our planet.
           </p>
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center gap-4" data-aos="fade-up" data-aos-delay="200">
             <Button className="button-gradient px-8 py-6">Get Started</Button>
             <Button variant="outline" className="px-8 py-6">Learn More</Button>
           </div>
@@ -72,19 +83,22 @@ const Index = () => {
       <section className="py-20 relative">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-6 rounded-lg backdrop-blur-sm bg-white/5 hover:bg-white/10 transition-all duration-300">
+            <div className="p-6 rounded-lg backdrop-blur-sm bg-white/5 hover:bg-white/10 transition-all duration-300" 
+              data-aos="fade-right" data-aos-delay="100">
               <h3 className="text-2xl font-bold mb-4 gradient-text">Comprehensive Analysis</h3>
               <p className="text-muted-foreground">
                 Our advanced ESG analytics provide deep insights into your organization's environmental impact, social responsibility, and governance practices.
               </p>
             </div>
-            <div className="p-6 rounded-lg backdrop-blur-sm bg-white/5 hover:bg-white/10 transition-all duration-300">
+            <div className="p-6 rounded-lg backdrop-blur-sm bg-white/5 hover:bg-white/10 transition-all duration-300" 
+              data-aos="fade-up" data-aos-delay="200">
               <h3 className="text-2xl font-bold mb-4 gradient-text">Real-time Monitoring</h3>
               <p className="text-muted-foreground">
                 Stay ahead with real-time monitoring of your ESG metrics, ensuring compliance and identifying opportunities for improvement.
               </p>
             </div>
-            <div className="p-6 rounded-lg backdrop-blur-sm bg-white/5 hover:bg-white/10 transition-all duration-300">
+            <div className="p-6 rounded-lg backdrop-blur-sm bg-white/5 hover:bg-white/10 transition-all duration-300" 
+              data-aos="fade-left" data-aos-delay="300">
               <h3 className="text-2xl font-bold mb-4 gradient-text">Expert Support</h3>
               <p className="text-muted-foreground">
                 Our team of ESG experts provides dedicated support to help you navigate complex sustainability challenges and achieve your goals.
@@ -98,14 +112,14 @@ const Index = () => {
       <section className="py-20 bg-secondary/50">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center gap-12">
-            <div className="flex-1">
+            <div className="flex-1" data-aos="fade-right">
               <h2 className="text-3xl font-bold mb-4">Collaborative Solutions</h2>
               <p className="text-muted-foreground mb-6">
                 Work together with your team to implement effective ESG strategies. Our platform enables seamless collaboration and real-time updates for better decision-making.
               </p>
               <Button variant="outline">Learn More</Button>
             </div>
-            <div className="flex-1">
+            <div className="flex-1" data-aos="fade-left" data-aos-delay="200">
               <img 
                 src="https://images.unsplash.com/photo-1519389950473-47ba0277781c" 
                 alt="Team Collaboration" 
@@ -119,14 +133,14 @@ const Index = () => {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="flex flex-col-reverse md:flex-row items-center gap-12">
-            <div className="flex-1">
+            <div className="flex-1" data-aos="fade-right">
               <img 
                 src="https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7" 
                 alt="Advanced Analytics" 
                 className="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300"
               />
             </div>
-            <div className="flex-1">
+            <div className="flex-1" data-aos="fade-left" data-aos-delay="200">
               <h2 className="text-3xl font-bold mb-4">Advanced Analytics</h2>
               <p className="text-muted-foreground mb-6">
                 Leverage our powerful analytics tools to gain insights into your ESG performance. Track metrics, analyze trends, and make data-driven decisions.
@@ -140,14 +154,14 @@ const Index = () => {
       <section className="py-20 bg-secondary/50">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center gap-12">
-            <div className="flex-1">
+            <div className="flex-1" data-aos="fade-right">
               <h2 className="text-3xl font-bold mb-4">Personal Support</h2>
               <p className="text-muted-foreground mb-6">
                 Get dedicated support from our team of ESG experts. We're here to help you navigate challenges and achieve your sustainability goals.
               </p>
               <Button variant="outline">Contact Us</Button>
             </div>
-            <div className="flex-1">
+            <div className="flex-1" data-aos="fade-left" data-aos-delay="200">
               <img 
                 src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158" 
                 alt="Expert Support" 
@@ -161,14 +175,14 @@ const Index = () => {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="flex flex-col-reverse md:flex-row items-center gap-12">
-            <div className="flex-1">
+            <div className="flex-1" data-aos="fade-right">
               <img 
                 src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81" 
                 alt="Data Visualization" 
                 className="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300"
               />
             </div>
-            <div className="flex-1">
+            <div className="flex-1" data-aos="fade-left" data-aos-delay="200">
               <h2 className="text-3xl font-bold mb-4">Real-time Insights</h2>
               <p className="text-muted-foreground mb-6">
                 Monitor your ESG metrics in real-time with our advanced visualization tools. Stay informed and make timely decisions based on the latest data.
@@ -182,13 +196,15 @@ const Index = () => {
       {/* Pricing Section */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Transparent Pricing</h2>
-          <p className="text-muted-foreground text-center max-w-2xl mx-auto mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4" data-aos="fade-up">Transparent Pricing</h2>
+          <p className="text-muted-foreground text-center max-w-2xl mx-auto mb-12" data-aos="fade-up" data-aos-delay="100">
             Choose the perfect plan that aligns with your organization's ESG goals and requirements.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {pricingPlans.map((plan, index) => (
-              <PricingCard key={index} {...plan} />
+              <div key={index} data-aos="fade-up" data-aos-delay={200 + index * 100}>
+                <PricingCard {...plan} />
+              </div>
             ))}
           </div>
         </div>
