@@ -8,23 +8,12 @@ export interface GeoJsonEntry {
   type: string;
 }
 
-interface Point {
-  lat: number;
-  lng: number;
-  type: string;
-  intensity: number;
-}
-
 /**
  * Loads and filters GeoJSON data from files
  */
-export const loadGeoJsonFiles = async (selectedTypes: string[]): Promise<{
-  points: [number, number, number][];
-  rawPoints: Point[];
-}> => {
+export const loadGeoJsonFiles = async (selectedTypes: string[]): Promise<[number, number, number][]> => {
   const geojsonFiles = Array.from({ length: 843 }, (_, i) => `/geojson_files/file${i + 1}.geojson`);
   let allPoints: [number, number, number][] = [];
-  let rawPoints: Point[] = [];
   let loadedCount = 0;
 
   try {
@@ -54,14 +43,8 @@ export const loadGeoJsonFiles = async (selectedTypes: string[]): Promise<{
           );
         });
 
-        filteredData.forEach(({ latitude, longitude, intensity = 1, type }) => {
+        filteredData.forEach(({ latitude, longitude, intensity = 1 }) => {
           allPoints.push([latitude, longitude, intensity]);
-          rawPoints.push({
-            lat: latitude,
-            lng: longitude,
-            intensity,
-            type
-          });
         });
         
         loadedCount++;
@@ -71,7 +54,7 @@ export const loadGeoJsonFiles = async (selectedTypes: string[]): Promise<{
     }
 
     console.log(`✅ Loaded data from ${loadedCount} files, total ${allPoints.length} points for types: ${selectedTypes.join(", ") || "All"}`);
-    return { points: allPoints, rawPoints };
+    return allPoints;
   } catch (error) {
     console.error("Error loading GeoJSON files:", error);
     toast({
@@ -79,6 +62,6 @@ export const loadGeoJsonFiles = async (selectedTypes: string[]): Promise<{
       title: "Error loading map data",
       description: "There was a problem loading the waste data. Please try again.",
     });
-    return { points: [], rawPoints: [] };
+    return [];
   }
 };

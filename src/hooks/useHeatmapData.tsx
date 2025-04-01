@@ -3,30 +3,21 @@ import { useState, useEffect } from "react";
 import { loadGeoJsonFiles } from "@/utils/geojsonLoader";
 import { toast } from "@/components/ui/use-toast";
 
-interface Point {
-  lat: number;
-  lng: number;
-  type: string;
-  intensity: number;
-}
-
 export const useHeatmapData = (selectedTypes: string[]) => {
   const [isLoading, setIsLoading] = useState(true);
   const [heatmapData, setHeatmapData] = useState<[number, number, number][]>([]);
-  const [rawData, setRawData] = useState<Point[]>([]);
 
   useEffect(() => {
     const loadHeatmapData = async () => {
       setIsLoading(true);
       try {
-        const { points, rawPoints } = await loadGeoJsonFiles(selectedTypes);
-        setHeatmapData(points);
-        setRawData(rawPoints);
+        const data = await loadGeoJsonFiles(selectedTypes);
+        setHeatmapData(data);
         
-        if (points.length > 0) {
+        if (data.length > 0) {
           toast({
             title: "Map Updated",
-            description: `Loaded ${points.length} waste data points`,
+            description: `Loaded ${data.length} waste data points`,
           });
         } else {
           toast({
@@ -44,5 +35,5 @@ export const useHeatmapData = (selectedTypes: string[]) => {
     loadHeatmapData();
   }, [selectedTypes]);
 
-  return { isLoading, heatmapData, rawData };
+  return { isLoading, heatmapData };
 };
