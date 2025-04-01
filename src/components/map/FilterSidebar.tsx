@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Filter, X } from "lucide-react";
+import { X, Filter } from "lucide-react";
 
 interface FilterSidebarProps {
   showFilter: boolean;
@@ -8,62 +8,133 @@ interface FilterSidebarProps {
   selectedTypes: string[];
   handleToggleType: (type: string) => void;
   wasteTypes: string[];
+  typeLabels?: Record<string, string>;
+  typeColors?: Record<string, string>;
 }
 
-const FilterSidebar = ({ 
-  showFilter, 
-  setShowFilter, 
-  selectedTypes, 
+const FilterSidebar = ({
+  showFilter,
+  setShowFilter,
+  selectedTypes,
   handleToggleType,
-  wasteTypes
+  wasteTypes,
+  typeLabels = {},
+  typeColors = {}
 }: FilterSidebarProps) => {
+  // Format type for display if no label provided
+  const formatType = (type: string): string => {
+    return typeLabels[type] || type
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
+  // Get color for type or fallback
+  const getTypeColor = (type: string): string => {
+    return typeColors[type] || "#3B82F6";
+  };
+
   return (
-    <>
-      {/* Floating Sidebar */}
-      <div
-        className={`fixed top-0 left-0 h-full w-64 bg-card shadow-lg p-4 z-50 transition-transform duration-300 ${
-          showFilter ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold">Filter by Waste Type</h3>
-          <button 
-            onClick={() => setShowFilter(false)}
-            className="p-1 rounded-full hover:bg-muted"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        
-        {wasteTypes.map((type) => (
-          <label key={type} className="flex items-center space-x-2 mb-2">
-            <input
-              type="checkbox"
-              className="form-checkbox h-5 w-5 text-primary"
-              checked={selectedTypes.includes(type)}
-              onChange={() => handleToggleType(type)}
-            />
-            <span className="text-foreground">{type.replace(/_/g, " ")}</span>
-          </label>
-        ))}
-        
+    <div
+      className={`fixed top-0 left-0 h-full bg-white dark:bg-slate-800 shadow-xl z-30 transition-all duration-300 ease-in-out ${
+        showFilter ? "translate-x-0" : "-translate-x-full"
+      }`}
+      style={{ width: "280px" }}
+    >
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+        <h2 className="flex items-center text-lg font-bold">
+          <Filter className="mr-2 h-5 w-5" /> 
+          Filter Waste Types
+        </h2>
         <button
-          className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg shadow-md w-full hover:bg-primary/90"
           onClick={() => setShowFilter(false)}
+          className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          aria-label="Close filter panel"
         >
-          Apply Filters
+          <X className="h-5 w-5" />
         </button>
       </div>
 
-      {/* Filter Toggle Button */}
-      <button
-        onClick={() => setShowFilter(!showFilter)}
-        className="fixed top-4 left-4 bg-primary text-primary-foreground p-3 rounded-full shadow-lg z-50"
-        aria-label="Toggle filters"
-      >
-        <Filter className="w-5 h-5" />
-      </button>
-    </>
+      <div className="p-4">
+        <div className="flex flex-col space-y-3">
+          {wasteTypes.map((type) => (
+            <label
+              key={type}
+              className={`flex items-center p-3 rounded-lg cursor-pointer transition-colors ${
+                selectedTypes.includes(type)
+                  ? "bg-blue-50 dark:bg-blue-900/20"
+                  : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
+              }`}
+            >
+              <span
+                className="w-4 h-4 rounded mr-3 flex-shrink-0"
+                style={{ backgroundColor: getTypeColor(type) }}
+              />
+              <input
+                type="checkbox"
+                className="sr-only"
+                checked={selectedTypes.includes(type)}
+                onChange={() => handleToggleType(type)}
+              />
+              <span className="flex-1">{formatType(type)}</span>
+              <span
+                className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${
+                  selectedTypes.includes(type)
+                    ? "bg-blue-500 border-blue-500"
+                    : "border-gray-300 dark:border-gray-600"
+                }`}
+              >
+                {selectedTypes.includes(type) && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-3 h-3 text-white"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                )}
+              </span>
+            </label>
+          ))}
+        </div>
+
+        <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <button
+            onClick={() => {
+              if (selectedTypes.length === wasteTypes.length) {
+                // If all selected, clear all
+                setShowFilter(false);
+                setTimeout(() => {
+                  wasteTypes.forEach(type => {
+                    if (selectedTypes.includes(type)) {
+                      handleToggleType(type);
+                    }
+                  });
+                }, 300);
+              } else {
+                // Select all
+                wasteTypes.forEach(type => {
+                  if (!selectedTypes.includes(type)) {
+                    handleToggleType(type);
+                  }
+                });
+                setTimeout(() => setShowFilter(false), 300);
+              }
+            }}
+            className="w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+          >
+            {selectedTypes.length === wasteTypes.length
+              ? "Clear All Filters"
+              : "Select All Types"}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
 
