@@ -1,33 +1,54 @@
 
-import React, { useState } from "react";
-import { MapContainer, TileLayer } from "react-leaflet";
+import React, { useState, useRef, useEffect } from "react";
+import { MapContainer, TileLayer, ZoomControl, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { Loader2, MapIcon } from "lucide-react";
+import { Loader2, MapIcon, Layers, Filter as FilterIcon, Info } from "lucide-react";
 import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Custom components and hooks
 import HeatmapLayer from "@/components/map/HeatmapLayer";
 import FilterSidebar from "@/components/map/FilterSidebar";
 import { useHeatmapData } from "@/hooks/useHeatmapData";
+import MapHeader from "@/components/map/MapHeader";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-// Waste types
+// Waste types with icons and colors
 const wasteTypes = [
-  "plastic_waste", 
-  "ocean_waste", 
-  "plastic_debris", 
-  "fishing_gear",
-  "industrial_waste",
-  "sewage_waste"
+  { id: "plastic_waste", label: "Plastic Waste", color: "#3B82F6" },
+  { id: "ocean_waste", label: "Ocean Waste", color: "#10B981" },
+  { id: "plastic_debris", label: "Plastic Debris", color: "#F59E0B" },
+  { id: "fishing_gear", label: "Fishing Gear", color: "#EC4899" },
+  { id: "industrial_waste", label: "Industrial Waste", color: "#8B5CF6" },
+  { id: "sewage_waste", label: "Sewage Waste", color: "#EF4444" }
 ];
 
+// Map Animation Component
+const MapAnimation = () => {
+  const map = useMap();
+  
+  useEffect(() => {
+    // Add a smooth zoom animation when map loads
+    setTimeout(() => {
+      map.flyTo([20, -80], 4, {
+        animate: true,
+        duration: 2
+      });
+    }, 1000);
+  }, [map]);
+  
+  return null;
+};
+
 // Main Map Component
-const Map = ({
-  title = "Real-Time Waste Tracking",
-  placeholder = "https://images.unsplash.com/photo-1577315734214-4b3dec92d9ad?q=80&w=1000",
-}) => {
+const Map = () => {
   // State for filter management
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [showFilter, setShowFilter] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
+  const [heatmapVisible, setHeatmapVisible] = useState(true);
+  const mapRef = useRef(null);
   
   // Custom hook for heatmap data loading
   const { isLoading, heatmapData } = useHeatmapData(selectedTypes);
@@ -40,55 +61,175 @@ const Map = ({
   };
 
   return (
-    <div className="relative">
-      <div className="animated-border rounded-xl overflow-hidden">
-        <div className="relative aspect-video">
-          <img
-            src={placeholder}
-            alt="Map preview"
-            className="w-full h-full object-cover"
-            style={{ filter: "saturate(0.8) brightness(0.7)" }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-blue-900 via-blue-600 to-transparent" />
-          
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-            <MapIcon className="w-12 h-12 text-ocean mb-4 animate-pulse-subtle" />
-            <h3 className="text-2xl font-bold mb-2">{title}</h3>
-            <p className="text-foreground/70 max-w-md mb-6">
-              View real-time locations of detected marine waste and pollution hotspots.
-            </p>
-            <Link to="/map" className="glass-button ripple text-lg font-semibold">
-              View Full Map
-            </Link>
-          </div>
+    <div className="flex flex-col min-h-screen bg-background">
+      <MapHeader />
+      
+      <div className="flex-1 relative">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="absolute inset-0 z-10"
+        >
+          <MapContainer 
+            center={[15.96, -87.62]} 
+            zoom={3} 
+            style={{ height: "100%", width: "100%" }}
+            preferCanvas={true}
+            zoomControl={false}
+            className="z-10"
+          >
+            {/* Satellite Tile Layer */}
+            <TileLayer
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+              attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
+              maxZoom={19}
+            />
+            
+            {/* Add a second layer for better visuals */}
+            <TileLayer
+              url="https://stamen-tiles-{s}.a.ssl.fastly.net/toner-hybrid/{z}/{x}/{y}{r}.png"
+              attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>'
+              opacity={0.35}
+            />
+            
+            {/* Zoom control in a better position */}
+            <ZoomControl position="bottomright" />
+            
+            {/* Map animation component */}
+            <MapAnimation />
+            
+            {/* Heatmap Layer - display only when visible and data is available */}
+            {heatmapVisible && heatmapData.length > 0 && (
+              <HeatmapLayer heatmapData={heatmapData} />
+            )}
+          </MapContainer>
+        </motion.div>
 
+        {/* Loading overlay */}
+        <AnimatePresence>
           {isLoading && (
-            <div className="absolute top-4 right-4">
-              <Loader2 className="w-5 h-5 text-foreground/50 animate-rotate" />
-            </div>
-          )}
-
-          <div className="absolute inset-0 z-10">
-            <MapContainer 
-              center={[15.96, -87.62]} 
-              zoom={3} 
-              style={{ height: "100%", width: "100%" }}
-              preferCanvas={true} // Improve performance for large datasets
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-20 flex items-center justify-center bg-background/40 backdrop-blur-sm"
             >
-              {/* Satellite Tile Layer */}
-              <TileLayer
-                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
-                maxZoom={19}
-              />
-              
-              {/* Heatmap Layer - this is the important part for showing the heatmap */}
-              {heatmapData.length > 0 && (
-                <HeatmapLayer heatmapData={heatmapData} />
-              )}
-            </MapContainer>
+              <div className="bg-card p-6 rounded-xl shadow-lg flex flex-col items-center">
+                <Loader2 className="w-10 h-10 text-ocean animate-spin mb-3" />
+                <h3 className="text-lg font-semibold">Loading Map Data</h3>
+                <p className="text-sm text-foreground/70 mt-1">Retrieving waste detection information...</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Controls overlay */}
+        <div className="absolute top-4 right-4 z-30 flex flex-col gap-2">
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button 
+              variant="secondary" 
+              size="icon" 
+              className={cn("shadow-lg", heatmapVisible && "bg-ocean/20 border-ocean/50")}
+              onClick={() => setHeatmapVisible(!heatmapVisible)}
+            >
+              <Layers className="w-5 h-5" />
+            </Button>
+          </motion.div>
+          
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button 
+              variant="secondary" 
+              size="icon" 
+              className={cn("shadow-lg", showFilter && "bg-ocean/20 border-ocean/50")}
+              onClick={() => setShowFilter(!showFilter)}
+            >
+              <FilterIcon className="w-5 h-5" />
+            </Button>
+          </motion.div>
+          
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button 
+              variant="secondary" 
+              size="icon" 
+              className={cn("shadow-lg", showInfo && "bg-ocean/20 border-ocean/50")}
+              onClick={() => setShowInfo(!showInfo)}
+            >
+              <Info className="w-5 h-5" />
+            </Button>
+          </motion.div>
+        </div>
+
+        {/* Info panel */}
+        <AnimatePresence>
+          {showInfo && (
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              className="absolute bottom-4 right-4 z-30 max-w-sm bg-card/80 backdrop-blur-md p-4 rounded-xl shadow-lg border border-white/10"
+            >
+              <h3 className="font-semibold mb-2 flex items-center gap-2">
+                <MapIcon className="w-4 h-4 text-ocean" />
+                About Marine Waste Map
+              </h3>
+              <p className="text-sm text-foreground/80">
+                This interactive map displays real-time data of detected marine waste and pollution hotspots across the world's oceans. 
+                Toggle the filters to visualize different types of waste.
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                {wasteTypes.map(type => (
+                  <div key={type.id} className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: type.color }} />
+                    <span className="text-xs">{type.label}</span>
+                  </div>
+                ))}
+              </div>
+              <Button 
+                className="w-full mt-3 text-xs" 
+                variant="outline" 
+                size="sm"
+                onClick={() => setShowInfo(false)}
+              >
+                Close
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Legend */}
+        <div className="absolute bottom-4 left-4 z-30 bg-card/80 backdrop-blur-md p-3 rounded-xl shadow-lg border border-white/10">
+          <h3 className="text-xs font-semibold mb-2">Pollution Intensity</h3>
+          <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-green-500 via-yellow-500 to-red-500 rounded-full" />
+          <div className="flex justify-between mt-1 text-[10px] text-foreground/70">
+            <span>Low</span>
+            <span>Medium</span>
+            <span>High</span>
           </div>
         </div>
+
+        {/* Stats footer */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+          className="absolute bottom-0 left-0 right-0 z-20 bg-card/50 backdrop-blur-md border-t border-white/10 py-2"
+        >
+          <div className="container mx-auto px-4">
+            <div className="flex flex-wrap justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                <span>Active tracking: {heatmapData.length} points</span>
+              </div>
+              <div>
+                Selected filters: {selectedTypes.length === 0 ? "All waste types" : selectedTypes.map(t => t.replace("_", " ")).join(", ")}
+              </div>
+              <div className="text-ocean">
+                Last updated: {new Date().toLocaleTimeString()}
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </div>
 
       {/* Filter Sidebar Component */}
@@ -97,7 +238,7 @@ const Map = ({
         setShowFilter={setShowFilter}
         selectedTypes={selectedTypes}
         handleToggleType={handleToggleType}
-        wasteTypes={wasteTypes}
+        wasteTypes={wasteTypes.map(wt => wt.id)}
       />
     </div>
   );
