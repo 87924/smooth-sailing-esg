@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Map as MapIcon, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
