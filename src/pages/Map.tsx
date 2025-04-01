@@ -1,18 +1,20 @@
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, Suspense, lazy } from "react";
 import { MapContainer, TileLayer, ZoomControl, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Loader2, MapIcon, Layers, Filter as FilterIcon, Info } from "lucide-react";
-import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Custom components and hooks
+// Custom components and hooks - lazy load non-critical components
 import HeatmapLayer from "@/components/map/HeatmapLayer";
 import FilterSidebar from "@/components/map/FilterSidebar";
 import { useHeatmapData } from "@/hooks/useHeatmapData";
 import MapHeader from "@/components/map/MapHeader";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+// Lazy load MapLoading component
+const MapLoading = lazy(() => import("@/components/map/MapLoading"));
 
 // Waste types with icons and colors
 const wasteTypes = [
@@ -24,18 +26,18 @@ const wasteTypes = [
   { id: "sewage_waste", label: "Sewage Waste", color: "#EF4444" }
 ];
 
-// Map Animation Component
+// Map Animation Component - moved to separate component for better performance
 const MapAnimation = () => {
   const map = useMap();
   
   useEffect(() => {
-    // Add a smooth zoom animation when map loads
+    // Add a smooth zoom animation when map loads - reduce timing for faster initial display
     setTimeout(() => {
       map.flyTo([20, -80], 4, {
         animate: true,
-        duration: 2
+        duration: 1.5 // Reduced from 2 seconds for faster animation
       });
-    }, 1000);
+    }, 500); // Reduced from 1000ms for faster startup
   }, [map]);
   
   return null;
@@ -48,6 +50,7 @@ const Map = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [heatmapVisible, setHeatmapVisible] = useState(true);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const mapRef = useRef(null);
   
   // Custom hook for heatmap data loading
@@ -60,11 +63,19 @@ const Map = () => {
     );
   };
 
+  // Set initialLoadComplete to true after first render
+  useEffect(() => {
+    if (!initialLoadComplete && !isLoading) {
+      setInitialLoadComplete(true);
+    }
+  }, [isLoading]);
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
+      <div className="h-16"></div> {/* Spacer to prevent navbar overlap */}
       <MapHeader />
       
-      <div className="flex-1 relative">
+      <div className="flex-1 relative mt-2">
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -78,12 +89,18 @@ const Map = () => {
             preferCanvas={true}
             zoomControl={false}
             className="z-10"
+            attributionControl={false}
+            worldCopyJump={true} // For better performance when crossing date line
           >
-            {/* Satellite Tile Layer */}
+            {/* Satellite Tile Layer - with optimized loading */}
             <TileLayer
               url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
               attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
               maxZoom={19}
+              tileSize={256}
+              keepBuffer={2} // Reduced for better performance
+              updateWhenZooming={false} // Improves performance during zoom
+              updateWhenIdle={true} // Only update when map is idle
             />
             
             {/* Add a second layer for better visuals */}
@@ -91,6 +108,10 @@ const Map = () => {
               url="https://stamen-tiles-{s}.a.ssl.fastly.net/toner-hybrid/{z}/{x}/{y}{r}.png"
               attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>'
               opacity={0.35}
+              tileSize={256}
+              keepBuffer={2}
+              updateWhenZooming={false}
+              updateWhenIdle={true}
             />
             
             {/* Zoom control in a better position */}
@@ -103,30 +124,29 @@ const Map = () => {
             {heatmapVisible && heatmapData.length > 0 && (
               <HeatmapLayer heatmapData={heatmapData} />
             )}
+
+            {/* Attribution in better position */}
+            <div className="leaflet-control leaflet-control-attribution absolute bottom-0 right-0 z-[400] text-xs bg-black/30 text-white/70 px-2 py-1 rounded-tl">
+              © <a href="https://www.esri.com/" className="text-white/80 hover:text-white">Esri</a> | 
+              <a href="http://stamen.com" className="text-white/80 hover:text-white"> Stamen Design</a>
+            </div>
           </MapContainer>
         </motion.div>
 
-        {/* Loading overlay */}
-        <AnimatePresence>
-          {isLoading && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 z-20 flex items-center justify-center bg-background/40 backdrop-blur-sm"
-            >
-              <div className="bg-card p-6 rounded-xl shadow-lg flex flex-col items-center">
-                <Loader2 className="w-10 h-10 text-ocean animate-spin mb-3" />
-                <h3 className="text-lg font-semibold">Loading Map Data</h3>
-                <p className="text-sm text-foreground/70 mt-1">Retrieving waste detection information...</p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Loading overlay - using Suspense for better performance */}
+        <Suspense fallback={null}>
+          {isLoading && <MapLoading loading={isLoading} />}
+        </Suspense>
 
-        {/* Controls overlay */}
-        <div className="absolute top-4 right-4 z-30 flex flex-col gap-2">
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+        {/* Controls overlay - moved slightly down to avoid navbar overlap */}
+        <div className="absolute top-6 right-4 z-30 flex flex-col gap-2">
+          <motion.div 
+            whileHover={{ scale: 1.05 }} 
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+          >
             <Button 
               variant="secondary" 
               size="icon" 
@@ -137,7 +157,13 @@ const Map = () => {
             </Button>
           </motion.div>
           
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <motion.div 
+            whileHover={{ scale: 1.05 }} 
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+          >
             <Button 
               variant="secondary" 
               size="icon" 
@@ -148,7 +174,13 @@ const Map = () => {
             </Button>
           </motion.div>
           
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <motion.div 
+            whileHover={{ scale: 1.05 }} 
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+          >
             <Button 
               variant="secondary" 
               size="icon" 
@@ -167,6 +199,7 @@ const Map = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3 }}
               className="absolute bottom-4 right-4 z-30 max-w-sm bg-card/80 backdrop-blur-md p-4 rounded-xl shadow-lg border border-white/10"
             >
               <h3 className="font-semibold mb-2 flex items-center gap-2">
@@ -198,7 +231,12 @@ const Map = () => {
         </AnimatePresence>
 
         {/* Legend */}
-        <div className="absolute bottom-4 left-4 z-30 bg-card/80 backdrop-blur-md p-3 rounded-xl shadow-lg border border-white/10">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="absolute bottom-4 left-4 z-30 bg-card/80 backdrop-blur-md p-3 rounded-xl shadow-lg border border-white/10"
+        >
           <h3 className="text-xs font-semibold mb-2">Pollution Intensity</h3>
           <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-green-500 via-yellow-500 to-red-500 rounded-full" />
           <div className="flex justify-between mt-1 text-[10px] text-foreground/70">
@@ -206,12 +244,12 @@ const Map = () => {
             <span>Medium</span>
             <span>High</span>
           </div>
-        </div>
+        </motion.div>
 
         {/* Stats footer */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={{ opacity: initialLoadComplete ? 1 : 0, y: initialLoadComplete ? 0 : 20 }}
           transition={{ delay: 0.5, duration: 0.5 }}
           className="absolute bottom-0 left-0 right-0 z-20 bg-card/50 backdrop-blur-md border-t border-white/10 py-2"
         >
@@ -239,6 +277,7 @@ const Map = () => {
         selectedTypes={selectedTypes}
         handleToggleType={handleToggleType}
         wasteTypes={wasteTypes.map(wt => wt.id)}
+        setSelectedTypes={setSelectedTypes}
       />
     </div>
   );

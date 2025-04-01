@@ -20,6 +20,7 @@ interface FilterSidebarProps {
   selectedTypes: string[];
   handleToggleType: (type: string) => void;
   wasteTypes: string[];
+  setSelectedTypes: (types: string[]) => void;
 }
 
 const FilterSidebar = ({ 
@@ -27,7 +28,8 @@ const FilterSidebar = ({
   setShowFilter, 
   selectedTypes, 
   handleToggleType,
-  wasteTypes
+  wasteTypes,
+  setSelectedTypes
 }: FilterSidebarProps) => {
   const sidebarVariants = {
     hidden: { x: "-100%" },
@@ -43,6 +45,7 @@ const FilterSidebar = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
             onClick={() => setShowFilter(false)}
           />

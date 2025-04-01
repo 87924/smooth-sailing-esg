@@ -9,17 +9,17 @@ const MapHeader = () => {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-card border-b border-white/5 py-4 px-4 md:px-6"
+      className="bg-card border-b border-white/5 py-3 px-4 md:px-6 mt-16" // Added mt-16 to avoid navbar overlap
     >
       <div className="container mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-3">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-full bg-ocean/10 animate-pulse-subtle">
-              <Globe className="w-6 h-6 text-ocean" />
+              <Globe className="w-5 h-5 text-ocean" />
             </div>
             <div>
-              <h1 className="text-xl font-bold">Marine Waste Map</h1>
-              <p className="text-sm text-foreground/60">Real-time tracking of ocean pollution</p>
+              <h1 className="text-lg font-bold">Marine Waste Map</h1>
+              <p className="text-xs text-foreground/60">Real-time tracking of ocean pollution</p>
             </div>
           </div>
           
