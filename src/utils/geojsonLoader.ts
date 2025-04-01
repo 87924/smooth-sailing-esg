@@ -24,9 +24,64 @@ export const loadGeoJsonFiles = async (selectedTypes: string[]): Promise<[number
     return dataCache.get(cacheKey) || [];
   }
   
-  // Initial files to load - load fewer initially for faster display
-  const initialBatchSize = 200;
+  // Load more files initially for a more comprehensive dataset
+  const initialBatchSize = 400; // Increased from 200 to load more data points
   const geojsonFiles = Array.from({ length: initialBatchSize }, (_, i) => `/geojson_files/file${i + 1}.geojson`);
+  
+  // Add specific high-value files that have important data
+  const additionalImportantFiles = [
+    '/geojson_files/file760.geojson', 
+    '/geojson_files/file761.geojson',
+    '/geojson_files/file762.geojson',
+    '/geojson_files/file763.geojson',
+    '/geojson_files/file764.geojson',
+    '/geojson_files/file765.geojson',
+    '/geojson_files/file766.geojson',
+    '/geojson_files/file767.geojson',
+    '/geojson_files/file768.geojson',
+    '/geojson_files/file769.geojson',
+    '/geojson_files/file770.geojson',
+    '/geojson_files/file771.geojson',
+    '/geojson_files/file772.geojson',
+    '/geojson_files/file773.geojson',
+    '/geojson_files/file774.geojson',
+    '/geojson_files/file775.geojson',
+    '/geojson_files/file776.geojson',
+    '/geojson_files/file777.geojson',
+    '/geojson_files/file778.geojson',
+    '/geojson_files/file779.geojson',
+    '/geojson_files/file780.geojson',
+    '/geojson_files/file781.geojson',
+    '/geojson_files/file782.geojson',
+    '/geojson_files/file783.geojson',
+    '/geojson_files/file801.geojson',
+    '/geojson_files/file802.geojson',
+    '/geojson_files/file803.geojson',
+    '/geojson_files/file804.geojson',
+    '/geojson_files/file805.geojson',
+    '/geojson_files/file806.geojson',
+    '/geojson_files/file807.geojson',
+    '/geojson_files/file808.geojson',
+    '/geojson_files/file809.geojson',
+    '/geojson_files/file810.geojson',
+    '/geojson_files/file811.geojson',
+    '/geojson_files/file812.geojson',
+    '/geojson_files/file813.geojson',
+    '/geojson_files/file814.geojson',
+    '/geojson_files/file815.geojson',
+    '/geojson_files/file816.geojson',
+    '/geojson_files/file817.geojson',
+    '/geojson_files/file819.geojson',
+    '/geojson_files/file820.geojson'
+  ];
+  
+  // Add the additional files to our list, avoiding duplicates
+  additionalImportantFiles.forEach(file => {
+    if (!geojsonFiles.includes(file)) {
+      geojsonFiles.push(file);
+    }
+  });
+  
   let allPoints: [number, number, number][] = [];
 
   try {
@@ -47,8 +102,9 @@ export const loadGeoJsonFiles = async (selectedTypes: string[]): Promise<[number
         const data: GeoJsonEntry[] = JSON.parse(textData);
         if (!Array.isArray(data)) return;
         
-        // Filter based on selected waste types - optimized filtering
+        // Improved filter for waste types - handle comma-separated types
         const filteredData = data.filter(({ latitude, longitude, type }) => {
+          // Ensure coordinates are valid
           const validCoordinates = 
             typeof latitude === "number" &&
             typeof longitude === "number" &&
@@ -59,7 +115,19 @@ export const loadGeoJsonFiles = async (selectedTypes: string[]): Promise<[number
             longitude >= -180 &&
             longitude <= 180;
             
-          return validCoordinates && (selectedTypes.length === 0 || selectedTypes.includes(type));
+          if (!validCoordinates) return false;
+          
+          // If no types are selected, include all
+          if (selectedTypes.length === 0) return true;
+          
+          // Handle multiple waste types in a single entry (comma-separated)
+          if (type && type.includes(',')) {
+            const entryTypes = type.split(',').map(t => t.trim());
+            return entryTypes.some(t => selectedTypes.includes(t));
+          }
+          
+          // Standard single type check
+          return selectedTypes.includes(type);
         });
         
         filteredData.forEach(({ latitude, longitude, intensity = 1 }) => {
@@ -127,8 +195,9 @@ const loadRemainingFiles = async (start: number, end: number, selectedTypes: str
         const data: GeoJsonEntry[] = JSON.parse(textData);
         if (!Array.isArray(data)) return;
         
-        // Filter based on selected waste types - optimized filtering
+        // Improved filter for waste types - handle comma-separated types
         const filteredData = data.filter(({ latitude, longitude, type }) => {
+          // Ensure coordinates are valid
           const validCoordinates = 
             typeof latitude === "number" &&
             typeof longitude === "number" &&
@@ -139,7 +208,19 @@ const loadRemainingFiles = async (start: number, end: number, selectedTypes: str
             longitude >= -180 &&
             longitude <= 180;
             
-          return validCoordinates && (selectedTypes.length === 0 || selectedTypes.includes(type));
+          if (!validCoordinates) return false;
+          
+          // If no types are selected, include all
+          if (selectedTypes.length === 0) return true;
+          
+          // Handle multiple waste types in a single entry (comma-separated)
+          if (type && type.includes(',')) {
+            const entryTypes = type.split(',').map(t => t.trim());
+            return entryTypes.some(t => selectedTypes.includes(t));
+          }
+          
+          // Standard single type check
+          return selectedTypes.includes(type);
         });
         
         filteredData.forEach(({ latitude, longitude, intensity = 1 }) => {

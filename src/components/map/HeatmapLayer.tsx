@@ -34,24 +34,55 @@ const HeatmapLayer = ({ heatmapData }: HeatmapLayerProps) => {
 
     // Use requestAnimationFrame for smoother rendering
     requestAnimationFrame(() => {
-      // Create the heat layer with optimized settings
+      // Create the heat layer with enhanced settings
       try {
         // @ts-ignore - leaflet.heat types are not properly recognized
         heatLayerRef.current = L.heatLayer(memoizedData, {
-          radius: 25,          // Slightly reduced radius for better performance
-          blur: 20,            // Optimized blur
-          maxZoom: 10,         // Optimized maxZoom
-          max: 1.0,            // Ensures proper scaling of intensity
-          minOpacity: 0.5,     // Better visibility at low intensities
-          gradient: {          // Custom color gradient
-            0.1: "#0000FF",    // Blue (Very Low)
-            0.3: "#00FF00",    // Green (Low)
-            0.5: "#FFFF00",    // Yellow (Medium)
-            0.7: "#FFA500",    // Orange (High)
-            1.0: "#FF0000",    // Red (Very High)
+          radius: 20,           // Slightly reduced radius for better performance with more points
+          blur: 25,             // Increased blur for smoother visuals
+          maxZoom: 12,          // Optimized maxZoom
+          max: 1.0,             // Ensures proper scaling of intensity
+          minOpacity: 0.4,      // Better visibility at low intensities
+          gradient: {           // Enhanced color gradient for better visualization
+            0.1: "#0000FF",     // Blue (Very Low)
+            0.3: "#00FF00",     // Green (Low)
+            0.5: "#FFFF00",     // Yellow (Medium)
+            0.7: "#FFA500",     // Orange (High)
+            1.0: "#FF0000",     // Red (Very High)
           },
         }).addTo(map);
 
+        // Add click event to show tooltip with information about the clicked area
+        map.on('click', (e) => {
+          const latlng = e.latlng;
+          
+          // Find nearby points (crude approximation)
+          const nearbyPoints = memoizedData.filter(point => {
+            const distance = map.distance(
+              [point[0], point[1]],
+              [latlng.lat, latlng.lng]
+            );
+            return distance < 10000; // Within 10km
+          });
+          
+          if (nearbyPoints.length > 0) {
+            const avgIntensity = nearbyPoints.reduce((sum, point) => sum + point[2], 0) / nearbyPoints.length;
+            const intensityLevel = avgIntensity >= 4 ? 'High' : avgIntensity >= 2 ? 'Medium' : 'Low';
+            
+            // Create a popup with information
+            L.popup()
+              .setLatLng(latlng)
+              .setContent(`
+                <div style="text-align: center;">
+                  <strong>Waste Detection</strong><br>
+                  Intensity: ${intensityLevel}<br>
+                  Points in area: ${nearbyPoints.length}
+                </div>
+              `)
+              .openOn(map);
+          }
+        });
+        
         // Add pan/zoom event listener to update heatmap for better performance
         const handleMoveEnd = () => {
           if (heatLayerRef.current) {
@@ -67,10 +98,10 @@ const HeatmapLayer = ({ heatmapData }: HeatmapLayerProps) => {
           setIsReady(true);
           
           // Only show toast for significant data updates
-          if (memoizedData.length > 100) {
+          if (memoizedData.length > 200) {
             toast({
               title: "Heatmap Updated",
-              description: `Visualizing ${memoizedData.length} waste data points`,
+              description: `Visualizing ${memoizedData.length} waste data points globally`,
             });
           }
         }, 300);
@@ -80,6 +111,7 @@ const HeatmapLayer = ({ heatmapData }: HeatmapLayerProps) => {
           if (heatLayerRef.current && map) {
             map.removeLayer(heatLayerRef.current);
             map.off('moveend', handleMoveEnd);
+            map.off('click');
           }
         };
       } catch (error) {

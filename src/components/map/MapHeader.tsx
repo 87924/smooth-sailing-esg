@@ -18,8 +18,8 @@ const MapHeader = () => {
               <Globe className="w-5 h-5 text-ocean" />
             </div>
             <div>
-              <h1 className="text-lg font-bold">Marine Waste Map</h1>
-              <p className="text-xs text-foreground/60">Real-time tracking of ocean pollution</p>
+              <h1 className="text-lg font-bold">Global Marine Waste Map</h1>
+              <p className="text-xs text-foreground/60">Worldwide tracking of ocean pollution</p>
             </div>
           </div>
           
@@ -37,7 +37,7 @@ const MapHeader = () => {
               className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary text-xs text-foreground/70"
             >
               <Trash className="w-3 h-3 text-rose-400" />
-              <span>Waste detected: <span className="text-foreground">843 locations</span></span>
+              <span>Waste types: <span className="text-foreground">Multiple categories tracked</span></span>
             </motion.div>
           </div>
         </div>
