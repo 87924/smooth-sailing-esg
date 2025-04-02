@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { useMap } from "react-leaflet";
 import { motion } from "framer-motion";
@@ -16,6 +17,7 @@ const TimePlayback = ({ onTimeChange }: TimePlaybackProps) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [timeControl, setTimeControl] = useState<L.Control | null>(null);
   
   const timePoints = [
     { date: '2022-01', label: 'Jan 2022' },
@@ -35,43 +37,52 @@ const TimePlayback = ({ onTimeChange }: TimePlaybackProps) => {
   useEffect(() => {
     if (!map) return;
     
-    const timeControl = L.Control.extend({
-      options: {
-        position: 'bottomright'
-      },
+    // Only add control if it doesn't exist yet
+    if (!timeControl) {
+      const control = L.Control.extend({
+        options: {
+          position: 'bottomright'
+        },
+        
+        onAdd: function() {
+          const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+          container.innerHTML = `
+            <button 
+              class="bg-card/80 backdrop-blur-sm hover:bg-card/90 p-2 flex items-center justify-center rounded-md shadow-md"
+              title="Time Playback"
+            >
+              <span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </span>
+            </button>
+          `;
+          
+          L.DomEvent.on(container.querySelector('button'), 'click', function() {
+            setIsOpen(prev => !prev);
+          });
+          
+          return container;
+        }
+      });
       
-      onAdd: function() {
-        const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-        container.innerHTML = `
-          <button 
-            class="bg-card/80 backdrop-blur-sm hover:bg-card/90 p-2 flex items-center justify-center rounded-md shadow-md"
-            title="Time Playback"
-          >
-            <span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12 6 12 12 16 14"/>
-              </svg>
-            </span>
-          </button>
-        `;
-        
-        L.DomEvent.on(container.querySelector('button'), 'click', function() {
-          setIsOpen(!isOpen);
-        });
-        
-        return container;
-      }
-    });
-    
-    map.addControl(new timeControl());
+      const newControl = new control();
+      map.addControl(newControl);
+      setTimeControl(newControl);
+    }
     
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
+      
+      if (timeControl) {
+        map.removeControl(timeControl);
+      }
     };
-  }, [map, isOpen]);
+  }, [map]);
   
   useEffect(() => {
     if (isPlaying) {

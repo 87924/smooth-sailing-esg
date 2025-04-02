@@ -11,123 +11,144 @@ const WeatherOverlay = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [weatherType, setWeatherType] = useState<'temperature' | 'precipitation' | 'wind' | 'clouds'>('temperature');
   const [isLoading, setIsLoading] = useState(false);
+  const [weatherControl, setWeatherControl] = useState<L.Control | null>(null);
+  const [activeLayers, setActiveLayers] = useState<{[key: string]: L.TileLayer | null}>({
+    temperature: null,
+    precipitation: null,
+    wind: null,
+    clouds: null
+  });
   
   useEffect(() => {
     if (!map) return;
     
-    // Add weather control button
-    const weatherControl = L.Control.extend({
-      options: {
-        position: 'topright'
-      },
+    // Only add the control if it doesn't exist yet
+    if (!weatherControl) {
+      // Add weather control button
+      const control = L.Control.extend({
+        options: {
+          position: 'topright'
+        },
+        
+        onAdd: function() {
+          const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+          container.innerHTML = `
+            <button 
+              class="bg-card/80 backdrop-blur-sm hover:bg-card/90 p-2 flex items-center justify-center rounded-md shadow-md"
+              title="Weather Layer"
+            >
+              <span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 16.2A4.5 4.5 0 0 0 17.5 8h-1.8A7 7 0 1 0 4 14.9"/>
+                  <path d="M16 20h-5.2c-.68 0-1.3-.3-1.7-.8"/>
+                  <path d="M12 8a2 2 0 1 0 4 0 2 2 0 0 0-4 0"/>
+                </svg>
+              </span>
+            </button>
+          `;
+          
+          L.DomEvent.on(container.querySelector('button'), 'click', function() {
+            setIsOpen(!isOpen);
+          });
+          
+          return container;
+        }
+      });
       
-      onAdd: function() {
-        const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-        container.innerHTML = `
-          <button 
-            class="bg-card/80 backdrop-blur-sm hover:bg-card/90 p-2 flex items-center justify-center rounded-md shadow-md"
-            title="Weather Layer"
-          >
-            <span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 16.2A4.5 4.5 0 0 0 17.5 8h-1.8A7 7 0 1 0 4 14.9"/>
-                <path d="M16 20h-5.2c-.68 0-1.3-.3-1.7-.8"/>
-                <path d="M12 8a2 2 0 1 0 4 0 2 2 0 0 0-4 0"/>
-              </svg>
-            </span>
-          </button>
-        `;
-        
-        L.DomEvent.on(container.querySelector('button'), 'click', function() {
-          setIsOpen(!isOpen);
-        });
-        
-        return container;
+      const newControl = new control();
+      map.addControl(newControl);
+      setWeatherControl(newControl);
+    }
+    
+    // Function to create weather layers
+    const createWeatherLayers = () => {
+      // Using OpenWeatherMap API placeholder - users would need their own API key
+      const temperatureLayer = L.tileLayer(
+        'https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY', 
+        {
+          maxZoom: 19,
+          opacity: 0.6,
+          attribution: '&copy; <a href="https://openweathermap.org/copyright">OpenWeatherMap</a>'
+        }
+      );
+      
+      const precipitationLayer = L.tileLayer(
+        'https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY', 
+        {
+          maxZoom: 19,
+          opacity: 0.6,
+          attribution: '&copy; <a href="https://openweathermap.org/copyright">OpenWeatherMap</a>'
+        }
+      );
+      
+      const windLayer = L.tileLayer(
+        'https://tile.openweathermap.org/map/wind_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY', 
+        {
+          maxZoom: 19,
+          opacity: 0.6,
+          attribution: '&copy; <a href="https://openweathermap.org/copyright">OpenWeatherMap</a>'
+        }
+      );
+      
+      const cloudsLayer = L.tileLayer(
+        'https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY', 
+        {
+          maxZoom: 19,
+          opacity: 0.6,
+          attribution: '&copy; <a href="https://openweathermap.org/copyright">OpenWeatherMap</a>'
+        }
+      );
+      
+      setActiveLayers({
+        temperature: temperatureLayer,
+        precipitation: precipitationLayer,
+        wind: windLayer,
+        clouds: cloudsLayer
+      });
+    };
+    
+    createWeatherLayers();
+    
+    // Cleanup layers on unmount
+    return () => {
+      if (weatherControl) {
+        map.removeControl(weatherControl);
+      }
+      
+      Object.values(activeLayers).forEach(layer => {
+        if (layer) layer.remove();
+      });
+    };
+  }, [map]);
+  
+  // Handle weather type change
+  const handleWeatherTypeChange = (type: 'temperature' | 'precipitation' | 'wind' | 'clouds') => {
+    if (!map) return;
+    
+    setIsLoading(true);
+    setWeatherType(type);
+    
+    // Remove all active layers
+    Object.values(activeLayers).forEach(layer => {
+      if (layer && map.hasLayer(layer)) {
+        layer.remove();
       }
     });
     
-    map.addControl(new weatherControl());
-    
-    // Add weather layers
-    const temperatureLayer = L.tileLayer('https://{s}.tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY', {
-      maxZoom: 19,
-      opacity: 0.6,
-      attribution: '&copy; <a href="https://openweathermap.org/copyright">OpenWeatherMap</a>',
-      pane: 'overlayPane'
-    });
-    
-    const precipitationLayer = L.tileLayer('https://{s}.tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY', {
-      maxZoom: 19,
-      opacity: 0.6,
-      attribution: '&copy; <a href="https://openweathermap.org/copyright">OpenWeatherMap</a>',
-      pane: 'overlayPane'
-    });
-    
-    const windLayer = L.tileLayer('https://{s}.tile.openweathermap.org/map/wind_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY', {
-      maxZoom: 19,
-      opacity: 0.6,
-      attribution: '&copy; <a href="https://openweathermap.org/copyright">OpenWeatherMap</a>',
-      pane: 'overlayPane'
-    });
-    
-    const cloudsLayer = L.tileLayer('https://{s}.tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=YOUR_API_KEY', {
-      maxZoom: 19,
-      opacity: 0.6,
-      attribution: '&copy; <a href="https://openweathermap.org/copyright">OpenWeatherMap</a>',
-      pane: 'overlayPane'
-    });
-    
-    // Function to show weather layer
-    const showWeatherLayer = (type: 'temperature' | 'precipitation' | 'wind' | 'clouds') => {
-      setIsLoading(true);
+    // Add selected layer
+    const selectedLayer = activeLayers[type];
+    if (selectedLayer) {
+      selectedLayer.addTo(map);
       
-      // Remove all layers first
-      temperatureLayer.remove();
-      precipitationLayer.remove();
-      windLayer.remove();
-      cloudsLayer.remove();
-      
-      // Add selected layer
-      switch (type) {
-        case 'temperature':
-          temperatureLayer.addTo(map);
-          break;
-        case 'precipitation':
-          precipitationLayer.addTo(map);
-          break;
-        case 'wind':
-          windLayer.addTo(map);
-          break;
-        case 'clouds':
-          cloudsLayer.addTo(map);
-          break;
-      }
-      
-      setWeatherType(type);
-      
-      // Simulate loading
+      // Show loading effect
       setTimeout(() => {
         setIsLoading(false);
         toast({
           title: "Weather Layer Updated",
           description: `Now showing ${type} data`,
         });
-      }, 1000);
-    };
-    
-    // Return cleanup function
-    return () => {
-      temperatureLayer.remove();
-      precipitationLayer.remove();
-      windLayer.remove();
-      cloudsLayer.remove();
-    };
-  }, [map]);
-  
-  // Handle weather type change
-  const handleWeatherTypeChange = (type: 'temperature' | 'precipitation' | 'wind' | 'clouds') => {
-    setWeatherType(type);
-    // In a real implementation, we'd update the map layer here
+      }, 800);
+    }
   };
   
   if (!isOpen) return null;

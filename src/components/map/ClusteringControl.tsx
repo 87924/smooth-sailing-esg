@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMap } from "react-leaflet";
 import { motion } from "framer-motion";
 import { Grid, Group, CircleDot } from "lucide-react";
@@ -15,42 +15,48 @@ const ClusteringControl = ({ clusteringEnabled, setClusteringEnabled }: Clusteri
   const map = useMap();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [clusterSize, setClusterSize] = useState(50);
+  const [clusterControl, setClusterControl] = useState<L.Control | null>(null);
   
   useEffect(() => {
     if (!map) return;
     
-    // Create clustering control
-    const clusterControl = L.Control.extend({
-      options: {
-        position: 'topleft'
-      },
+    // Only add control if it doesn't exist yet
+    if (!clusterControl) {
+      // Create clustering control
+      const control = L.Control.extend({
+        options: {
+          position: 'topleft'
+        },
+        
+        onAdd: function() {
+          const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+          container.innerHTML = `
+            <button 
+              class="bg-card/80 backdrop-blur-sm hover:bg-card/90 p-2 flex items-center justify-center rounded-md shadow-md"
+              title="Clustering Options"
+            >
+              <span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="6" cy="12" r="3"/>
+                  <circle cx="18" cy="12" r="3"/>
+                  <line x1="9" y1="12" x2="15" y2="12"/>
+                </svg>
+              </span>
+            </button>
+          `;
+          
+          L.DomEvent.on(container.querySelector('button'), 'click', function() {
+            setIsSettingsOpen(prev => !prev);
+          });
+          
+          return container;
+        }
+      });
       
-      onAdd: function() {
-        const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-        container.innerHTML = `
-          <button 
-            class="bg-card/80 backdrop-blur-sm hover:bg-card/90 p-2 flex items-center justify-center rounded-md shadow-md"
-            title="Clustering Options"
-          >
-            <span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="6" cy="12" r="3"/>
-                <circle cx="18" cy="12" r="3"/>
-                <line x1="9" y1="12" x2="15" y2="12"/>
-              </svg>
-            </span>
-          </button>
-        `;
-        
-        L.DomEvent.on(container.querySelector('button'), 'click', function() {
-          setIsSettingsOpen(!isSettingsOpen);
-        });
-        
-        return container;
-      }
-    });
-    
-    map.addControl(new clusterControl());
+      const newControl = new control();
+      map.addControl(newControl);
+      setClusterControl(newControl);
+    }
     
     // When clustering is enabled, show a toast
     if (clusteringEnabled) {
@@ -59,7 +65,16 @@ const ClusteringControl = ({ clusteringEnabled, setClusteringEnabled }: Clusteri
         description: "Data points are now grouped for better visualization",
       });
     }
-  }, [map, isSettingsOpen, clusteringEnabled]);
+  }, [map, clusteringEnabled]);
+  
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      if (clusterControl) {
+        map.removeControl(clusterControl);
+      }
+    };
+  }, [map, clusterControl]);
   
   const handleClusteringToggle = () => {
     setClusteringEnabled(!clusteringEnabled);
