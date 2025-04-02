@@ -1,9 +1,9 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useMap } from "react-leaflet";
 import { motion } from "framer-motion";
 import { Calendar, Play, Pause, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import * as L from "leaflet";
 
 interface TimePlaybackProps {
   onTimeChange: (timestamp: string) => void;
@@ -17,7 +17,6 @@ const TimePlayback = ({ onTimeChange }: TimePlaybackProps) => {
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Simulate data for different time periods
   const timePoints = [
     { date: '2022-01', label: 'Jan 2022' },
     { date: '2022-04', label: 'Apr 2022' },
@@ -36,7 +35,6 @@ const TimePlayback = ({ onTimeChange }: TimePlaybackProps) => {
   useEffect(() => {
     if (!map) return;
     
-    // Add time control button
     const timeControl = L.Control.extend({
       options: {
         position: 'bottomright'
@@ -75,7 +73,6 @@ const TimePlayback = ({ onTimeChange }: TimePlaybackProps) => {
     };
   }, [map, isOpen]);
   
-  // Handle playback
   useEffect(() => {
     if (isPlaying) {
       intervalRef.current = setInterval(() => {

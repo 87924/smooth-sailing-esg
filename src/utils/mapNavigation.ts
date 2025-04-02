@@ -192,44 +192,47 @@ export const setupMarkerClustering = (map: mapboxgl.Map, data: any[], clusterRad
     });
     
     // Add click event for clusters
-    map.on('click', 'clusters', (e) => {
+    map.on('click', 'clusters', function(e) {
       const features = map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
       const clusterId = features[0].properties.cluster_id;
       
-      // Get the cluster expansion zoom
-      map.getSource('waste-points').getClusterExpansionZoom(
-        clusterId,
-        (err, zoom) => {
-          if (err) return;
-          
-          // Zoom to the cluster
-          map.easeTo({
-            center: (features[0].geometry as any).coordinates,
-            zoom: zoom
-          });
-        }
-      );
+      // Get the cluster expansion zoom - fixing type issue
+      const source = map.getSource('waste-points') as any;
+      if (source.getClusterExpansionZoom) {
+        source.getClusterExpansionZoom(
+          clusterId,
+          (err: any, zoom: number) => {
+            if (err) return;
+            
+            // Zoom to the cluster
+            map.easeTo({
+              center: (features[0].geometry as any).coordinates,
+              zoom: zoom
+            });
+          }
+        );
+      }
     });
     
     // Add mouse events for better interaction
-    map.on('mouseenter', 'clusters', () => {
+    map.on('mouseenter', 'clusters', function() {
       map.getCanvas().style.cursor = 'pointer';
     });
     
-    map.on('mouseleave', 'clusters', () => {
+    map.on('mouseleave', 'clusters', function() {
       map.getCanvas().style.cursor = '';
     });
     
-    map.on('mouseenter', 'unclustered-point', () => {
+    map.on('mouseenter', 'unclustered-point', function() {
       map.getCanvas().style.cursor = 'pointer';
     });
     
-    map.on('mouseleave', 'unclustered-point', () => {
+    map.on('mouseleave', 'unclustered-point', function() {
       map.getCanvas().style.cursor = '';
     });
     
     // Add click event for unclustered points
-    map.on('click', 'unclustered-point', (e) => {
+    map.on('click', 'unclustered-point', function(e) {
       const coordinates = (e.features[0].geometry as any).coordinates.slice();
       const properties = e.features[0].properties;
       
@@ -262,7 +265,7 @@ export const setupMarkerClustering = (map: mapboxgl.Map, data: any[], clusterRad
       if (map.getLayer('unclustered-point')) map.removeLayer('unclustered-point');
       if (map.getSource('waste-points')) map.removeSource('waste-points');
       
-      // Remove event listeners
+      // Remove event listeners properly
       map.off('click', 'clusters');
       map.off('mouseenter', 'clusters');
       map.off('mouseleave', 'clusters');

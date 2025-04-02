@@ -4,6 +4,7 @@ import { useMap } from "react-leaflet";
 import { motion } from "framer-motion";
 import { Grid, Group, CircleDot } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import * as L from "leaflet";
 
 interface ClusteringControlProps {
   clusteringEnabled: boolean;

@@ -3,7 +3,8 @@ import { useEffect, useRef } from "react";
 import { useMap } from "react-leaflet";
 import { motion } from "framer-motion";
 import { toast } from "@/components/ui/use-toast";
-import { Mountains } from "lucide-react";
+import { Mountain } from "lucide-react";
+import * as L from "leaflet";
 
 const TerrainVisualization = () => {
   const map = useMap();

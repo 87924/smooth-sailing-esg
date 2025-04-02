@@ -1,9 +1,10 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMap } from "react-leaflet";
 import { motion, AnimatePresence } from "framer-motion";
 import { BarChart3, X, ChevronRight, ChevronDown } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import * as L from "leaflet";
 
 interface RegionData {
   region: string;
