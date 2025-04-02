@@ -98,11 +98,17 @@ const DashboardPreview = () => {
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              transition={{ type: "spring", stiffness: 400, damping: 10 }}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.6 }}
+              // Combined transitions into a single transition prop
+              transition={{ 
+                duration: 0.5, 
+                delay: 0.6,
+                type: "spring", 
+                stiffness: 400, 
+                damping: 10 
+              }}
             >
               <a href="/dashboard" className="glass-button ripple inline-flex items-center">
                 <span>Explore Dashboard</span>
