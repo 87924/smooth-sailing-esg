@@ -12,6 +12,9 @@ import { useHeatmapData } from "@/hooks/useHeatmapData";
 import MapHeader from "@/components/map/MapHeader";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import TimeOfDayControl from "@/components/map/TimeOfDayControl";
+import CompassRose from "@/components/map/CompassRose";
+import MapScreenshot from "@/components/map/MapScreenshot";
 
 // Lazy load MapLoading component
 const MapLoading = lazy(() => import("@/components/map/MapLoading"));
@@ -124,6 +127,11 @@ const Map = () => {
             {heatmapVisible && heatmapData.length > 0 && (
               <HeatmapLayer heatmapData={heatmapData} />
             )}
+
+            {/* New features */}
+            <TimeOfDayControl />
+            <CompassRose />
+            <MapScreenshot />
 
             {/* Attribution in better position */}
             <div className="leaflet-control leaflet-control-attribution absolute bottom-0 right-0 z-[400] text-xs bg-black/30 text-white/70 px-2 py-1 rounded-tl">
