@@ -44,7 +44,7 @@ const TimeOfDayControl = () => {
   };
   
   return (
-    <div className="absolute bottom-20 right-4 z-30 bg-card/80 backdrop-blur-md p-2 rounded-lg shadow-lg border border-white/10">
+    <div className="absolute bottom-20 right-4 z-[1000] bg-card/80 backdrop-blur-md p-2 rounded-lg shadow-lg border border-white/10">
       <div className="flex flex-col gap-2">
         <div className="text-xs font-medium text-center mb-1">Time of Day</div>
         <div className="flex gap-2">

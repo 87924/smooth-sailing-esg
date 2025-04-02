@@ -41,7 +41,7 @@ const CompassRose = () => {
   }, [map]);
   
   return (
-    <div className="absolute top-36 left-4 z-20">
+    <div className="absolute top-36 left-4 z-[1000]">
       <motion.div 
         className="w-16 h-16 bg-card/70 backdrop-blur-md rounded-full shadow-lg border border-white/10 flex items-center justify-center"
         initial={{ scale: 0, rotate: 0 }}
