@@ -191,8 +191,8 @@ export const setupMarkerClustering = (map: mapboxgl.Map, data: any[], clusterRad
       }
     });
     
-    // Add click event for clusters
-    map.on('click', 'clusters', function(e) {
+    // Define event handlers as named functions for proper removal later
+    const handleClusterClick = (e: mapboxgl.MapMouseEvent) => {
       const features = map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
       const clusterId = features[0].properties.cluster_id;
       
@@ -212,29 +212,29 @@ export const setupMarkerClustering = (map: mapboxgl.Map, data: any[], clusterRad
           }
         );
       }
-    });
+    };
     
-    // Add mouse events for better interaction
-    map.on('mouseenter', 'clusters', function() {
+    // Add mouse events with named handlers for better interaction
+    const handleClusterMouseEnter = () => {
       map.getCanvas().style.cursor = 'pointer';
-    });
+    };
     
-    map.on('mouseleave', 'clusters', function() {
+    const handleClusterMouseLeave = () => {
       map.getCanvas().style.cursor = '';
-    });
+    };
     
-    map.on('mouseenter', 'unclustered-point', function() {
+    const handlePointMouseEnter = () => {
       map.getCanvas().style.cursor = 'pointer';
-    });
+    };
     
-    map.on('mouseleave', 'unclustered-point', function() {
+    const handlePointMouseLeave = () => {
       map.getCanvas().style.cursor = '';
-    });
+    };
     
-    // Add click event for unclustered points
-    map.on('click', 'unclustered-point', function(e) {
-      const coordinates = (e.features[0].geometry as any).coordinates.slice();
-      const properties = e.features[0].properties;
+    // Add click event for unclustered points with named handler
+    const handlePointClick = (e: mapboxgl.MapMouseEvent) => {
+      const coordinates = (e.features![0].geometry as any).coordinates.slice();
+      const properties = e.features![0].properties;
       
       // Create popup content based on properties
       const content = `
@@ -256,7 +256,15 @@ export const setupMarkerClustering = (map: mapboxgl.Map, data: any[], clusterRad
         .setLngLat(coordinates)
         .setHTML(content)
         .addTo(map);
-    });
+    };
+    
+    // Add event listeners with the named handlers
+    map.on('click', 'clusters', handleClusterClick);
+    map.on('mouseenter', 'clusters', handleClusterMouseEnter);
+    map.on('mouseleave', 'clusters', handleClusterMouseLeave);
+    map.on('click', 'unclustered-point', handlePointClick);
+    map.on('mouseenter', 'unclustered-point', handlePointMouseEnter);
+    map.on('mouseleave', 'unclustered-point', handlePointMouseLeave);
     
     // Return a cleanup function
     return () => {
@@ -265,13 +273,13 @@ export const setupMarkerClustering = (map: mapboxgl.Map, data: any[], clusterRad
       if (map.getLayer('unclustered-point')) map.removeLayer('unclustered-point');
       if (map.getSource('waste-points')) map.removeSource('waste-points');
       
-      // Remove event listeners properly
-      map.off('click', 'clusters');
-      map.off('mouseenter', 'clusters');
-      map.off('mouseleave', 'clusters');
-      map.off('click', 'unclustered-point');
-      map.off('mouseenter', 'unclustered-point');
-      map.off('mouseleave', 'unclustered-point');
+      // Remove event listeners with references to the same handler functions
+      map.off('click', 'clusters', handleClusterClick);
+      map.off('mouseenter', 'clusters', handleClusterMouseEnter);
+      map.off('mouseleave', 'clusters', handleClusterMouseLeave);
+      map.off('click', 'unclustered-point', handlePointClick);
+      map.off('mouseenter', 'unclustered-point', handlePointMouseEnter);
+      map.off('mouseleave', 'unclustered-point', handlePointMouseLeave);
     };
   } catch (error) {
     console.error("Error setting up clustering:", error);
