@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect, Suspense, lazy } from "react";
 import { MapContainer, TileLayer, ZoomControl, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { Loader2, MapIcon, Layers, Filter as FilterIcon, Info, Share2 } from "lucide-react";
+import { Loader2, MapIcon, Layers, Filter as FilterIcon, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Custom components and hooks - lazy load non-critical components
@@ -12,15 +12,6 @@ import { useHeatmapData } from "@/hooks/useHeatmapData";
 import MapHeader from "@/components/map/MapHeader";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { toast } from "@/components/ui/use-toast";
-
-// New enhanced components
-import TerrainVisualization from "@/components/map/TerrainVisualization";
-import TimePlayback from "@/components/map/TimePlayback";
-import ComparativeAnalysis from "@/components/map/ComparativeAnalysis";
-import WeatherOverlay from "@/components/map/WeatherOverlay";
-import SocialShare from "@/components/map/SocialShare";
-import ClusteringControl from "@/components/map/ClusteringControl";
 
 // Lazy load MapLoading component
 const MapLoading = lazy(() => import("@/components/map/MapLoading"));
@@ -60,8 +51,6 @@ const Map = () => {
   const [showInfo, setShowInfo] = useState(false);
   const [heatmapVisible, setHeatmapVisible] = useState(true);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
-  const [selectedTimePeriod, setSelectedTimePeriod] = useState("2024-04"); // For time playback
-  const [clusteringEnabled, setClusteringEnabled] = useState(false); // For clustering
   const mapRef = useRef(null);
   
   // Custom hook for heatmap data loading
@@ -79,17 +68,7 @@ const Map = () => {
     if (!initialLoadComplete && !isLoading) {
       setInitialLoadComplete(true);
     }
-  }, [isLoading, initialLoadComplete]);
-
-  // Handle time period change from time playback component
-  const handleTimeChange = (timestamp: string) => {
-    setSelectedTimePeriod(timestamp);
-    // Update heatmap data based on time period
-    toast({
-      title: "Showing data for",
-      description: timestamp,
-    });
-  };
+  }, [isLoading]);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -145,17 +124,6 @@ const Map = () => {
             {heatmapVisible && heatmapData.length > 0 && (
               <HeatmapLayer heatmapData={heatmapData} />
             )}
-
-            {/* New enhanced components */}
-            <TerrainVisualization />
-            <TimePlayback onTimeChange={handleTimeChange} />
-            <ComparativeAnalysis />
-            <WeatherOverlay />
-            <SocialShare />
-            <ClusteringControl 
-              clusteringEnabled={clusteringEnabled}
-              setClusteringEnabled={setClusteringEnabled}
-            />
 
             {/* Attribution in better position */}
             <div className="leaflet-control leaflet-control-attribution absolute bottom-0 right-0 z-[400] text-xs bg-black/30 text-white/70 px-2 py-1 rounded-tl">
@@ -295,7 +263,7 @@ const Map = () => {
                 Selected filters: {selectedTypes.length === 0 ? "All waste types" : selectedTypes.map(t => t.replace("_", " ")).join(", ")}
               </div>
               <div className="text-ocean">
-                {selectedTimePeriod ? `Time period: ${selectedTimePeriod}` : "Last updated: " + new Date().toLocaleTimeString()}
+                Last updated: {new Date().toLocaleTimeString()}
               </div>
             </div>
           </div>
