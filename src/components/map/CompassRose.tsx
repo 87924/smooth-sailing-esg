@@ -19,8 +19,8 @@ const CompassRose = () => {
       // Extract rotation angle if present
       if (transform && transform !== 'none') {
         const values = transform.split('(')[1].split(')')[0].split(',');
-        const a = values[0];
-        const b = values[1];
+        const a = parseFloat(values[0]); // Convert string to number with parseFloat
+        const b = parseFloat(values[1]); // Convert string to number with parseFloat
         const angle = Math.round(Math.atan2(b, a) * (180/Math.PI));
         setRotation(-angle); // Negative because we want to counter-rotate
       } else {
