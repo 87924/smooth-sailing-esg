@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useMap } from "react-leaflet";
 import { RotateCcw, RotateCw } from "lucide-react";
@@ -15,8 +14,18 @@ const MapRotationControl = () => {
     const newBearing = (currentBearing + 45) % 360;
     setCurrentBearing(newBearing);
     
-    // Apply rotation to map container
-    map.setBearing(newBearing);
+    // For Leaflet, we need to use a CSS transform for rotation
+    // since setBearing is not a native Leaflet method
+    const mapContainer = map.getContainer();
+    mapContainer.style.transform = `rotate(${newBearing}deg)`;
+    
+    // Also rotate all markers and controls in the opposite direction to keep them upright
+    const markers = document.querySelectorAll('.leaflet-marker-icon, .leaflet-control');
+    markers.forEach((marker) => {
+      if (marker instanceof HTMLElement) {
+        marker.style.transform = `rotate(-${newBearing}deg)`;
+      }
+    });
     
     toast({
       title: "Map rotated",
@@ -31,7 +40,16 @@ const MapRotationControl = () => {
     setCurrentBearing(newBearing);
     
     // Apply rotation to map container
-    map.setBearing(newBearing);
+    const mapContainer = map.getContainer();
+    mapContainer.style.transform = `rotate(${newBearing}deg)`;
+    
+    // Rotate markers and controls in the opposite direction
+    const markers = document.querySelectorAll('.leaflet-marker-icon, .leaflet-control');
+    markers.forEach((marker) => {
+      if (marker instanceof HTMLElement) {
+        marker.style.transform = `rotate(-${newBearing}deg)`;
+      }
+    });
     
     toast({
       title: "Map rotated",
@@ -43,7 +61,18 @@ const MapRotationControl = () => {
     if (!map) return;
     
     setCurrentBearing(0);
-    map.setBearing(0);
+    
+    // Reset map container rotation
+    const mapContainer = map.getContainer();
+    mapContainer.style.transform = 'rotate(0deg)';
+    
+    // Reset all marker rotations
+    const markers = document.querySelectorAll('.leaflet-marker-icon, .leaflet-control');
+    markers.forEach((marker) => {
+      if (marker instanceof HTMLElement) {
+        marker.style.transform = 'rotate(0deg)';
+      }
+    });
     
     toast({
       title: "Map rotation reset",
@@ -52,7 +81,7 @@ const MapRotationControl = () => {
   };
   
   return (
-    <div className="absolute top-52 left-4 z-[1000] bg-card/80 backdrop-blur-md p-2 rounded-lg shadow-lg border border-white/10">
+    <div className="absolute top-52 left-4 z-[2000] bg-card/80 backdrop-blur-md p-2 rounded-lg shadow-lg border border-white/10">
       <div className="flex flex-col gap-2">
         <div className="text-xs font-medium text-center mb-1">Rotation</div>
         <div className="flex gap-2">

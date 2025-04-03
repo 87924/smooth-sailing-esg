@@ -69,7 +69,7 @@ const MapScreenshot = () => {
   
   return (
     <>
-      <div className="absolute top-28 right-4 z-[1000]">
+      <div className="absolute top-28 right-4 z-[2000]">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -92,7 +92,7 @@ const MapScreenshot = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-md z-[2000] flex items-center justify-center p-6"
+            className="fixed inset-0 bg-black/80 backdrop-blur-md z-[3000] flex items-center justify-center p-6"
           >
             <div className="bg-card rounded-xl shadow-2xl overflow-hidden max-w-4xl max-h-[90vh] w-full flex flex-col">
               <div className="p-4 border-b border-white/10 flex justify-between items-center">

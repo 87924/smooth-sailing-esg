@@ -62,7 +62,7 @@ const TerrainControl = () => {
   };
   
   return (
-    <div className="absolute top-96 left-4 z-[1000] bg-card/80 backdrop-blur-md p-2 rounded-lg shadow-lg border border-white/10">
+    <div className="absolute top-96 left-4 z-[2000] bg-card/80 backdrop-blur-md p-2 rounded-lg shadow-lg border border-white/10">
       <div className="flex flex-col gap-2">
         <div className="text-xs font-medium text-center mb-1">Terrain View</div>
         <motion.button
