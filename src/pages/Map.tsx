@@ -15,7 +15,6 @@ import { cn } from "@/lib/utils";
 import TimeOfDayControl from "@/components/map/TimeOfDayControl";
 import CompassRose from "@/components/map/CompassRose";
 import MapScreenshot from "@/components/map/MapScreenshot";
-import MapRotationControl from "@/components/map/MapRotationControl";
 import TerrainControl from "@/components/map/TerrainControl";
 import FullscreenControl from "@/components/map/FullscreenControl";
 
@@ -136,8 +135,7 @@ const Map = () => {
             <CompassRose />
             <MapScreenshot />
             
-            {/* New features */}
-            <MapRotationControl />
+            {/* Updated features (removed MapRotationControl) */}
             <TerrainControl />
             <FullscreenControl />
 

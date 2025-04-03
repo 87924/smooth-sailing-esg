@@ -69,7 +69,7 @@ const MapScreenshot = () => {
   
   return (
     <>
-      <div className="absolute top-28 right-4 z-[2000]">
+      <div className="absolute top-48 right-4 z-[2000]">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
