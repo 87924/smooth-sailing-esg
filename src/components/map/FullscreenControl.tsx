@@ -74,14 +74,14 @@ const FullscreenControl = () => {
   };
   
   return (
-    <div className="absolute top-36 left-4 z-[2000] bg-card/80 backdrop-blur-md p-2 rounded-lg shadow-lg border border-white/10">
-      <div className="flex flex-col gap-2">
-        <div className="text-xs font-medium text-center mb-1">Fullscreen</div>
+    <div className="absolute top-4 right-4 z-[1000] bg-slate-900/90 backdrop-blur-md p-2 rounded-lg shadow-lg border border-slate-700">
+      <div className="flex items-center gap-2">
+        <div className="text-xs font-medium text-white">Fullscreen</div>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={toggleFullscreen}
-          className={`p-1.5 rounded-full ${isFullscreen ? 'bg-ocean/20 text-ocean' : 'hover:bg-secondary/50'}`}
+          className={`p-1.5 rounded-full ${isFullscreen ? 'bg-blue-500/20 text-blue-300' : 'hover:bg-slate-700'}`}
           title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
         >
           {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}

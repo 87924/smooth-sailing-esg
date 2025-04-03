@@ -44,40 +44,38 @@ const TimeOfDayControl = () => {
   };
   
   return (
-    <div className="absolute bottom-20 right-4 z-[1000] bg-card/80 backdrop-blur-md p-2 rounded-lg shadow-lg border border-white/10">
-      <div className="flex flex-col gap-2">
-        <div className="text-xs font-medium text-center mb-1">Time of Day</div>
-        <div className="flex gap-2">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => handleTimeChange("day")}
-            className={`p-1.5 rounded-full ${timeOfDay === "day" ? "bg-ocean/20 text-ocean" : "hover:bg-secondary/50"}`}
-            title="Day mode"
-          >
-            <Sun className="w-4 h-4" />
-          </motion.button>
-          
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => handleTimeChange("dusk")}
-            className={`p-1.5 rounded-full ${timeOfDay === "dusk" ? "bg-orange-500/20 text-orange-500" : "hover:bg-secondary/50"}`}
-            title="Dusk mode"
-          >
-            <Sunset className="w-4 h-4" />
-          </motion.button>
-          
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => handleTimeChange("night")}
-            className={`p-1.5 rounded-full ${timeOfDay === "night" ? "bg-indigo-500/20 text-indigo-500" : "hover:bg-secondary/50"}`}
-            title="Night mode"
-          >
-            <Moon className="w-4 h-4" />
-          </motion.button>
-        </div>
+    <div className="absolute top-4 right-20 z-[1000] bg-slate-900/90 backdrop-blur-md p-2 rounded-lg shadow-lg border border-slate-700">
+      <div className="flex items-center gap-2">
+        <div className="text-xs font-medium text-white mr-1">Time of Day</div>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => handleTimeChange("day")}
+          className={`p-1.5 rounded-full ${timeOfDay === "day" ? "bg-blue-500/20 text-blue-300" : "hover:bg-slate-700"}`}
+          title="Day mode"
+        >
+          <Sun className="w-4 h-4" />
+        </motion.button>
+        
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => handleTimeChange("dusk")}
+          className={`p-1.5 rounded-full ${timeOfDay === "dusk" ? "bg-orange-500/20 text-orange-300" : "hover:bg-slate-700"}`}
+          title="Dusk mode"
+        >
+          <Sunset className="w-4 h-4" />
+        </motion.button>
+        
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => handleTimeChange("night")}
+          className={`p-1.5 rounded-full ${timeOfDay === "night" ? "bg-indigo-500/20 text-indigo-300" : "hover:bg-slate-700"}`}
+          title="Night mode"
+        >
+          <Moon className="w-4 h-4" />
+        </motion.button>
       </div>
     </div>
   );

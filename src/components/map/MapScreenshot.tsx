@@ -1,130 +1,105 @@
 
 import React, { useState } from "react";
 import { useMap } from "react-leaflet";
-import { Camera, Check, X, Download } from "lucide-react";
+import { Camera } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "@/components/ui/use-toast";
 import html2canvas from "html2canvas";
+import { toast } from "@/components/ui/use-toast";
 
 const MapScreenshot = () => {
   const map = useMap();
   const [isCapturing, setIsCapturing] = useState(false);
-  const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
   
-  const captureMap = async () => {
-    if (!map) return;
+  const captureScreenshot = async () => {
+    if (!map || isCapturing) return;
+    
+    setIsCapturing(true);
     
     try {
-      setIsCapturing(true);
+      // Show toast
+      toast({
+        title: "Capturing screenshot...",
+        description: "Please wait while we capture the current map view.",
+      });
       
-      // Small delay to ensure UI updates before capture
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Capture the map container
+      // Get map container
       const mapContainer = map.getContainer();
+      
+      // Capture screenshot
       const canvas = await html2canvas(mapContainer, {
         useCORS: true,
         allowTaint: true,
         logging: false,
-        scale: window.devicePixelRatio
+        backgroundColor: null
       });
       
-      // Convert to image URL
+      // Convert to image
       const imageUrl = canvas.toDataURL("image/png");
-      setScreenshotUrl(imageUrl);
       
+      // Create download link
+      const link = document.createElement("a");
+      link.href = imageUrl;
+      link.download = `ocean-waste-map-${new Date().toISOString().slice(0, 10)}.png`;
+      
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Show success toast
       toast({
-        title: "Screenshot captured",
-        description: "Your map screenshot is ready to download",
+        title: "Screenshot captured!",
+        description: "Your map screenshot has been downloaded.",
       });
     } catch (error) {
-      console.error("Error capturing map:", error);
+      console.error("Error capturing screenshot:", error);
+      
+      // Show error toast
       toast({
-        variant: "destructive",
         title: "Screenshot failed",
-        description: "There was an error capturing the map",
+        description: "There was an error capturing the screenshot. Please try again.",
+        variant: "destructive"
       });
     } finally {
       setIsCapturing(false);
     }
   };
   
-  const handleDownload = () => {
-    if (!screenshotUrl) return;
-    
-    const link = document.createElement("a");
-    link.href = screenshotUrl;
-    link.download = `marine-map-${new Date().toISOString().slice(0, 10)}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    // Close preview after download
-    setScreenshotUrl(null);
-  };
-  
-  const cancelScreenshot = () => {
-    setScreenshotUrl(null);
-  };
-  
   return (
-    <>
-      <div className="absolute top-48 right-4 z-[2000]">
+    <div className="absolute top-20 right-4 z-[1000] bg-slate-900/90 backdrop-blur-md p-2 rounded-lg shadow-lg border border-slate-700">
+      <div className="flex items-center gap-2">
+        <div className="text-xs font-medium text-white">Screenshot</div>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={captureMap}
+          onClick={captureScreenshot}
           disabled={isCapturing}
-          className="bg-card/80 backdrop-blur-md p-2 rounded-lg shadow-lg border border-white/10 hover:bg-card/90 transition-colors"
+          className={`p-1.5 rounded-full hover:bg-slate-700 ${isCapturing ? 'opacity-50 cursor-not-allowed' : ''}`}
           title="Capture map screenshot"
         >
-          {isCapturing ? (
-            <div className="w-5 h-5 rounded-full border-2 border-ocean border-t-transparent animate-spin" />
-          ) : (
-            <Camera className="w-5 h-5" />
-          )}
+          <AnimatePresence mode="wait">
+            {isCapturing ? (
+              <motion.div
+                key="spinner"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="w-5 h-5 border-2 border-t-transparent border-blue-300 rounded-full animate-spin"
+              />
+            ) : (
+              <motion.div
+                key="camera"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <Camera className="w-5 h-5" />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.button>
       </div>
-      
-      <AnimatePresence>
-        {screenshotUrl && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-md z-[3000] flex items-center justify-center p-6"
-          >
-            <div className="bg-card rounded-xl shadow-2xl overflow-hidden max-w-4xl max-h-[90vh] w-full flex flex-col">
-              <div className="p-4 border-b border-white/10 flex justify-between items-center">
-                <h3 className="font-semibold">Map Screenshot</h3>
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleDownload}
-                    className="flex items-center gap-1 bg-ocean hover:bg-ocean/80 text-white px-3 py-1.5 rounded-md text-sm"
-                  >
-                    <Download className="w-4 h-4" />
-                    Download
-                  </button>
-                  <button
-                    onClick={cancelScreenshot}
-                    className="p-1.5 hover:bg-secondary/50 rounded-md"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-              <div className="overflow-auto p-4 flex-grow">
-                <img 
-                  src={screenshotUrl} 
-                  alt="Map Screenshot" 
-                  className="max-w-full h-auto rounded-md shadow-md" 
-                />
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+    </div>
   );
 };
 
