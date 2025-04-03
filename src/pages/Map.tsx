@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, Suspense, lazy } from "react";
 import { MapContainer, TileLayer, ZoomControl, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -12,6 +11,13 @@ import { useHeatmapData } from "@/hooks/useHeatmapData";
 import MapHeader from "@/components/map/MapHeader";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import TimeOfDayControl from "@/components/map/TimeOfDayControl";
+import CompassRose from "@/components/map/CompassRose";
+import MapScreenshot from "@/components/map/MapScreenshot";
+import TerrainControl from "@/components/map/TerrainControl";
+import FullscreenControl from "@/components/map/FullscreenControl";
+import WaterQualityIndicator from "@/components/map/WaterQualityIndicator";
+import PollutionIntensityLegend from "@/components/map/PollutionIntensityLegend";
 
 // Lazy load MapLoading component
 const MapLoading = lazy(() => import("@/components/map/MapLoading"));
@@ -125,6 +131,17 @@ const Map = () => {
               <HeatmapLayer heatmapData={heatmapData} />
             )}
 
+            {/* Map features */}
+            <TimeOfDayControl />
+            <CompassRose />
+            <MapScreenshot />
+            
+            {/* Updated features */}
+            <TerrainControl />
+            <FullscreenControl />
+            <WaterQualityIndicator />
+            <PollutionIntensityLegend />
+
             {/* Attribution in better position */}
             <div className="leaflet-control leaflet-control-attribution absolute bottom-0 right-0 z-[400] text-xs bg-black/30 text-white/70 px-2 py-1 rounded-tl">
               © <a href="https://www.esri.com/" className="text-white/80 hover:text-white">Esri</a> | 
@@ -139,7 +156,7 @@ const Map = () => {
         </Suspense>
 
         {/* Controls overlay - moved slightly down to avoid navbar overlap */}
-        <div className="absolute top-6 right-4 z-30 flex flex-col gap-2">
+        <div className="absolute top-6 right-[110px] z-30 flex flex-col gap-2">
           <motion.div 
             whileHover={{ scale: 1.05 }} 
             whileTap={{ scale: 0.95 }}
@@ -229,22 +246,6 @@ const Map = () => {
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* Legend */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="absolute bottom-4 left-4 z-30 bg-card/80 backdrop-blur-md p-3 rounded-xl shadow-lg border border-white/10"
-        >
-          <h3 className="text-xs font-semibold mb-2">Pollution Intensity</h3>
-          <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-green-500 via-yellow-500 to-red-500 rounded-full" />
-          <div className="flex justify-between mt-1 text-[10px] text-foreground/70">
-            <span>Low</span>
-            <span>Medium</span>
-            <span>High</span>
-          </div>
-        </motion.div>
 
         {/* Stats footer */}
         <motion.div 
