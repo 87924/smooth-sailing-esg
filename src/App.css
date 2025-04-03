@@ -40,3 +40,9 @@
 .read-the-docs {
   color: #888;
 }
+
+.absolute.top-4.right-20.z-\[1000\].bg-slate-900\/90.backdrop-blur-md.p-2.rounded-lg.shadow-lg.border.border-slate-700 {
+  top: 415px;
+  /* left: -86px; */
+  right: 42.5px;
+}

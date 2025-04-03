@@ -74,7 +74,7 @@ const FullscreenControl = () => {
   };
   
   return (
-    <div className="absolute top-4 right-4 z-[1000] bg-slate-900/90 backdrop-blur-md p-2 rounded-lg shadow-lg border border-slate-700">
+    <div className="absolute top-40 right-4 z-[1000] bg-slate-900/90 backdrop-blur-md p-2 rounded-lg shadow-lg border border-slate-700">
       <div className="flex items-center gap-2">
         <div className="text-xs font-medium text-white">Fullscreen</div>
         <motion.button
