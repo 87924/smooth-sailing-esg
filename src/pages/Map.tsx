@@ -15,6 +15,9 @@ import { cn } from "@/lib/utils";
 import TimeOfDayControl from "@/components/map/TimeOfDayControl";
 import CompassRose from "@/components/map/CompassRose";
 import MapScreenshot from "@/components/map/MapScreenshot";
+import MapRotationControl from "@/components/map/MapRotationControl";
+import TerrainControl from "@/components/map/TerrainControl";
+import FullscreenControl from "@/components/map/FullscreenControl";
 
 // Lazy load MapLoading component
 const MapLoading = lazy(() => import("@/components/map/MapLoading"));
@@ -128,10 +131,15 @@ const Map = () => {
               <HeatmapLayer heatmapData={heatmapData} />
             )}
 
-            {/* New features */}
+            {/* Map features */}
             <TimeOfDayControl />
             <CompassRose />
             <MapScreenshot />
+            
+            {/* New features */}
+            <MapRotationControl />
+            <TerrainControl />
+            <FullscreenControl />
 
             {/* Attribution in better position */}
             <div className="leaflet-control leaflet-control-attribution absolute bottom-0 right-0 z-[400] text-xs bg-black/30 text-white/70 px-2 py-1 rounded-tl">
