@@ -8,7 +8,6 @@ export const useHeatmapData = (selectedTypes: string[]) => {
   const [heatmapData, setHeatmapData] = useState<[number, number, number][]>([]);
   const loadingRef = useRef(false);
   const previousTypesRef = useRef<string[]>([]);
-  const initialLoadDoneRef = useRef(false);
   
   useEffect(() => {
     // Skip if already loading
@@ -22,49 +21,40 @@ export const useHeatmapData = (selectedTypes: string[]) => {
     previousTypesRef.current = [...selectedTypes];
     loadingRef.current = true;
     
-    // Use a faster loading approach for the initial load
     const loadHeatmapData = async () => {
       setIsLoading(true);
-      
       try {
-        // Using optimized loader with early-return capability
-        const data = await loadGeoJsonFiles(selectedTypes);
+        // Pass an empty array to get all types if none are selected
+        const data = await loadGeoJsonFiles(selectedTypes.length > 0 ? selectedTypes : []);
+        setHeatmapData(data);
         
-        // If we got data from the cache, update the UI immediately
         if (data.length > 0) {
-          setHeatmapData(data);
-          setIsLoading(false);
-          
-          // Only show toast for significant changes after initial load
-          if (initialLoadDoneRef.current) {
-            const sizeDifference = Math.abs(data.length - heatmapData.length);
-            if (sizeDifference > 100) {
-              toast({
-                title: "Map Updated",
-                description: `Loaded ${data.length} waste data points. Zoom in to explore.`,
-              });
-            }
-          } else {
-            initialLoadDoneRef.current = true;
+          // Only show toast for significant changes
+          const sizeDifference = Math.abs(data.length - heatmapData.length);
+          if (sizeDifference > 100 || heatmapData.length === 0) {
+            toast({
+              title: "Map Updated",
+              description: `Loaded ${data.length} waste data points`,
+            });
           }
         } else if (selectedTypes.length > 0) {
           toast({
             title: "No Data Found",
             description: "No waste data found for the selected filters",
           });
-          setIsLoading(false);
         }
       } catch (error) {
         console.error("Error in useHeatmapData:", error);
-        setIsLoading(false);
       } finally {
+        setIsLoading(false);
         loadingRef.current = false;
       }
     };
     
-    // Immediate loading for better performance
-    loadHeatmapData();
-  }, [selectedTypes, heatmapData.length]);
+    // Use setTimeout to avoid blocking the main thread
+    const timerId = setTimeout(loadHeatmapData, 100);
+    return () => clearTimeout(timerId);
+  }, [selectedTypes]);
 
   return { isLoading, heatmapData };
 };
