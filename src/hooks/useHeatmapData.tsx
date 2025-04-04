@@ -24,7 +24,8 @@ export const useHeatmapData = (selectedTypes: string[]) => {
     const loadHeatmapData = async () => {
       setIsLoading(true);
       try {
-        const data = await loadGeoJsonFiles(selectedTypes);
+        // Pass an empty array to get all types if none are selected
+        const data = await loadGeoJsonFiles(selectedTypes.length > 0 ? selectedTypes : []);
         setHeatmapData(data);
         
         if (data.length > 0) {
