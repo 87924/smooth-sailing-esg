@@ -1,34 +1,27 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useMap } from "react-leaflet";
 import { Mountain, Waves } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/components/ui/use-toast";
+import L from "leaflet";
 
 const TerrainControl = () => {
   const map = useMap();
   const [showTerrain, setShowTerrain] = useState(false);
+  const terrainLayerRef = useRef<L.TileLayer | null>(null);
   
   useEffect(() => {
     if (!map) return;
     
-    // Get all existing tile layers
-    const layers = Object.values(map._layers || {}).filter(
-      (layer: any) => layer._url && layer._url.includes('MapServer/tile')
-    );
-    
     // If terrain layer should be visible but isn't added yet
     if (showTerrain) {
-      const terrainLayer = layers.find((layer: any) => 
-        layer._url && layer._url.includes('World_Terrain_Base')
-      );
-      
-      if (!terrainLayer) {
+      if (!terrainLayerRef.current) {
         // Add terrain layer
         const terrainUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}";
         const terrainAttribution = 'Terrain &copy; <a href="https://www.esri.com/">Esri</a>';
         
-        const newLayer = L.tileLayer(terrainUrl, {
+        terrainLayerRef.current = L.tileLayer(terrainUrl, {
           attribution: terrainAttribution,
           opacity: 0.6,
           maxZoom: 19,
@@ -42,12 +35,9 @@ const TerrainControl = () => {
       }
     } else {
       // Remove terrain layer if it exists
-      const terrainLayer = layers.find((layer: any) => 
-        layer._url && layer._url.includes('World_Terrain_Base')
-      );
-      
-      if (terrainLayer) {
-        map.removeLayer(terrainLayer);
+      if (terrainLayerRef.current) {
+        map.removeLayer(terrainLayerRef.current);
+        terrainLayerRef.current = null;
         
         toast({
           title: "Terrain view disabled",
