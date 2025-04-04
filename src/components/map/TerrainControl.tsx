@@ -4,6 +4,7 @@ import { useMap } from "react-leaflet";
 import { Mountain, Waves } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/components/ui/use-toast";
+import L from "leaflet";
 
 const TerrainControl = () => {
   const map = useMap();
@@ -12,23 +13,26 @@ const TerrainControl = () => {
   useEffect(() => {
     if (!map) return;
     
-    // Get all existing tile layers
-    const layers = Object.values(map._layers || {}).filter(
-      (layer: any) => layer._url && layer._url.includes('MapServer/tile')
-    );
+    // Get all existing tile layers - using proper type casting
+    const mapLayers = map.getPane('tilePane')?.children || [];
+    const layers = Array.from(mapLayers)
+      .map(item => (item as HTMLElement).dataset?.leafletTile)
+      .filter(Boolean);
     
     // If terrain layer should be visible but isn't added yet
     if (showTerrain) {
-      const terrainLayer = layers.find((layer: any) => 
-        layer._url && layer._url.includes('World_Terrain_Base')
-      );
+      // Check if terrain layer is already added
+      const hasTerrainLayer = map._layers && 
+        Object.values(map._layers as Record<string, any>).some(
+          (layer: any) => layer._url && layer._url.includes('World_Terrain_Base')
+        );
       
-      if (!terrainLayer) {
+      if (!hasTerrainLayer) {
         // Add terrain layer
         const terrainUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}";
         const terrainAttribution = 'Terrain &copy; <a href="https://www.esri.com/">Esri</a>';
         
-        const newLayer = L.tileLayer(terrainUrl, {
+        L.tileLayer(terrainUrl, {
           attribution: terrainAttribution,
           opacity: 0.6,
           maxZoom: 19,
@@ -42,17 +46,20 @@ const TerrainControl = () => {
       }
     } else {
       // Remove terrain layer if it exists
-      const terrainLayer = layers.find((layer: any) => 
-        layer._url && layer._url.includes('World_Terrain_Base')
-      );
-      
-      if (terrainLayer) {
-        map.removeLayer(terrainLayer);
+      if (map._layers) {
+        const layers = Object.values(map._layers as Record<string, any>);
+        const terrainLayer = layers.find((layer: any) => 
+          layer._url && layer._url.includes('World_Terrain_Base')
+        );
         
-        toast({
-          title: "Terrain view disabled",
-          description: "Standard map view restored",
-        });
+        if (terrainLayer) {
+          map.removeLayer(terrainLayer as L.Layer);
+          
+          toast({
+            title: "Terrain view disabled",
+            description: "Standard map view restored",
+          });
+        }
       }
     }
   }, [showTerrain, map]);
