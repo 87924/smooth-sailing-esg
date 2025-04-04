@@ -85,7 +85,11 @@ export const loadGeoJsonFiles = async (selectedTypes: string[]): Promise<[number
             longitude >= -180 &&
             longitude <= 180
           ) {
-            allPoints.push([latitude, longitude, intensity]);
+            // Normalize intensity to values between 0.3 and 1
+            const normalizedIntensity = intensity ? 
+              Math.max(0.3, Math.min(1, intensity / 5)) : 0.5;
+              
+            allPoints.push([latitude, longitude, normalizedIntensity]);
           }
         });
       });

@@ -14,6 +14,7 @@ const HeatmapLayer = ({ heatmapData }: HeatmapLayerProps) => {
   const map = useMap();
   const [isReady, setIsReady] = useState(false);
   const heatLayerRef = useRef<any>(null);
+  const pointMarkersRef = useRef<L.Marker[]>([]);
   
   // Memoize the data to prevent unnecessary re-renders
   const memoizedData = useMemo(() => {
@@ -39,6 +40,14 @@ const HeatmapLayer = ({ heatmapData }: HeatmapLayerProps) => {
     if (heatLayerRef.current && map.hasLayer(heatLayerRef.current)) {
       map.removeLayer(heatLayerRef.current);
     }
+    
+    // Clear existing markers
+    pointMarkersRef.current.forEach(marker => {
+      if (map.hasLayer(marker)) {
+        map.removeLayer(marker);
+      }
+    });
+    pointMarkersRef.current = [];
 
     // Use requestAnimationFrame for smoother rendering
     requestAnimationFrame(() => {
@@ -60,15 +69,83 @@ const HeatmapLayer = ({ heatmapData }: HeatmapLayerProps) => {
           },
         }).addTo(map);
         
-        // Add pan/zoom event listener to update heatmap for better performance
-        const handleMoveEnd = () => {
-          if (heatLayerRef.current) {
-            // Redraw only when map movement ends, not during movement
-            heatLayerRef.current.redraw();
+        // Add click functionality by creating invisible markers for each point
+        // Only add markers when zoomed in to a certain level to maintain performance
+        const handleZoomEnd = () => {
+          const currentZoom = map.getZoom();
+          
+          // Only show interactive points at higher zoom levels for better performance
+          if (currentZoom >= 8) {
+            // Clear existing markers
+            pointMarkersRef.current.forEach(marker => {
+              if (map.hasLayer(marker)) {
+                map.removeLayer(marker);
+              }
+            });
+            pointMarkersRef.current = [];
+            
+            // Create markers for each data point (or a subset if there are many)
+            const pointsToShow = currentZoom >= 10 ? memoizedData : memoizedData.filter((_, i) => i % 5 === 0);
+            
+            pointsToShow.forEach(point => {
+              const [lat, lng, intensity] = point;
+              
+              // Create an invisible marker
+              const marker = L.marker([lat, lng], {
+                opacity: 0, // Completely transparent
+                interactive: true
+              });
+              
+              // Determine waste type based on location if available
+              let wasteType = "Unknown";
+              let wasteSize = "Medium";
+              
+              // Set intensity text based on the value
+              let intensityText = "Medium";
+              if (intensity <= 0.3) intensityText = "Low";
+              else if (intensity >= 0.7) intensityText = "High";
+              
+              // Determine probable waste type based on the coordinates
+              // This is a simplification - in a real app you'd have this data from your source
+              if (lng < -80) wasteType = "Plastic Waste";
+              else if (lng > 100) wasteType = "Ocean Debris";
+              else wasteType = "Local Litter";
+              
+              // Add popup with information
+              marker.bindPopup(`
+                <div class="p-2">
+                  <h3 class="font-bold text-lg">Waste Details</h3>
+                  <ul class="mt-2">
+                    <li><strong>Type:</strong> ${wasteType}</li>
+                    <li><strong>Intensity:</strong> ${intensityText}</li>
+                    <li><strong>Coordinates:</strong> ${lat.toFixed(5)}, ${lng.toFixed(5)}</li>
+                  </ul>
+                </div>
+              `, {
+                className: 'rounded-md shadow-lg',
+                maxWidth: 300
+              });
+              
+              marker.addTo(map);
+              pointMarkersRef.current.push(marker);
+            });
+          } else {
+            // Remove all markers when zoomed out
+            pointMarkersRef.current.forEach(marker => {
+              if (map.hasLayer(marker)) {
+                map.removeLayer(marker);
+              }
+            });
+            pointMarkersRef.current = [];
           }
         };
         
-        map.on('moveend', handleMoveEnd);
+        // Add pan/zoom event listeners
+        map.on('moveend', handleZoomEnd);
+        map.on('zoomend', handleZoomEnd);
+        
+        // Initial check for the zoom level
+        handleZoomEnd();
         
         // Set ready to true after a short delay for animation effect
         setTimeout(() => {
@@ -78,7 +155,7 @@ const HeatmapLayer = ({ heatmapData }: HeatmapLayerProps) => {
           if (memoizedData.length > 200) {
             toast({
               title: "Heatmap Ready",
-              description: `Visualizing ${memoizedData.length} waste data points`,
+              description: `Visualizing ${memoizedData.length} waste data points. Zoom in to click points for details.`,
             });
           }
         }, 300);
@@ -87,8 +164,16 @@ const HeatmapLayer = ({ heatmapData }: HeatmapLayerProps) => {
         return () => {
           if (heatLayerRef.current && map) {
             map.removeLayer(heatLayerRef.current);
-            map.off('moveend', handleMoveEnd);
           }
+          
+          pointMarkersRef.current.forEach(marker => {
+            if (map.hasLayer(marker)) {
+              map.removeLayer(marker);
+            }
+          });
+          
+          map.off('moveend', handleZoomEnd);
+          map.off('zoomend', handleZoomEnd);
         };
       } catch (error) {
         console.error("Error creating heatmap:", error);

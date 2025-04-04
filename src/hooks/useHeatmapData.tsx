@@ -34,7 +34,7 @@ export const useHeatmapData = (selectedTypes: string[]) => {
           if (sizeDifference > 100 || heatmapData.length === 0) {
             toast({
               title: "Map Updated",
-              description: `Loaded ${data.length} waste data points`,
+              description: `Loaded ${data.length} waste data points. Zoom in and click on points for details.`,
             });
           }
         } else if (selectedTypes.length > 0) {
