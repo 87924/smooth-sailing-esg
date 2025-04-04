@@ -12,13 +12,13 @@ const WaterQualityIndicator = () => {
   // Real-time water quality data updates with more frequent interval
   useEffect(() => {
     const interval = setInterval(() => {
-      // Random fluctuation between -2 and +2
+      // Random fluctuation between -1 and +1
       setQualityIndex(prev => {
-        const newValue = prev + (Math.random() * 4 - 2);
+        const newValue = prev + (Math.random() * 2 - 1);
         // Keep between 0 and 100
-        return Math.min(100, Math.max(0, newValue));
+        return Math.min(100, Math.max(0, parseFloat(newValue.toFixed(1))));
       });
-    }, 3000); // Update every 3 seconds for more "real-time" feel
+    }, 2000); // Update every 2 seconds for more "real-time" feel
     
     return () => clearInterval(interval);
   }, []);
@@ -62,15 +62,15 @@ const WaterQualityIndicator = () => {
   };
   
   return (
-    <div className="absolute top-4 left-4 z-[1000]">
+    <div className="absolute top-4 left-4 z-[2000]">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-slate-900/90 backdrop-blur-md p-3 rounded-lg shadow-lg border border-slate-700 w-48"
+        className="bg-slate-900/90 backdrop-blur-md p-3 rounded-lg shadow-lg border border-slate-700 w-60"
       >
         <div className="flex flex-col gap-2">
-          <div className="text-sm font-medium text-white mb-1 flex items-center justify-between">
+          <div className="text-sm font-semibold text-white mb-1 flex items-center justify-between">
             <div className="flex items-center gap-1.5">
               <Droplets className="w-4 h-4 text-blue-400" />
               <span>Water Quality Index</span>
@@ -85,7 +85,7 @@ const WaterQualityIndicator = () => {
               className={`absolute inset-y-0 left-0 rounded-full ${getColor(qualityIndex)}`}
               initial={{ width: "0%" }}
               animate={{ width: `${qualityIndex}%` }}
-              transition={{ duration: 1, ease: "easeInOut" }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
             />
             
             <motion.div 
@@ -130,7 +130,7 @@ const WaterQualityIndicator = () => {
                 className="overflow-hidden"
               >
                 <div className="text-xs space-y-2 mt-1 border-t border-slate-700 pt-2">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex flex-col gap-1.5">
                     <span className="text-xs text-gray-400">Regions:</span>
                     <div className="flex flex-wrap gap-1">
                       {getRegions(qualityIndex).map((region) => (
@@ -144,7 +144,7 @@ const WaterQualityIndicator = () => {
                   <div className="flex items-start gap-1.5">
                     <Waves className="w-3.5 h-3.5 text-blue-400 mt-0.5" />
                     <div>
-                      <div className="text-[10px] text-gray-400">Updated every 3s with satellite data</div>
+                      <div className="text-[10px] text-gray-400">Updated every 2s with satellite data</div>
                       <div className="text-[10px] mt-0.5">Last update: {new Date().toLocaleTimeString()}</div>
                     </div>
                   </div>
