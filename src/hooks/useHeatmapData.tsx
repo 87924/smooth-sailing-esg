@@ -27,19 +27,11 @@ export const useHeatmapData = (selectedTypes: string[]) => {
         const data = await loadGeoJsonFiles(selectedTypes);
         setHeatmapData(data);
         
-        if (data.length > 0) {
-          // Only show toast for significant changes
-          const sizeDifference = Math.abs(data.length - heatmapData.length);
-          if (sizeDifference > 100 || heatmapData.length === 0) {
-            toast({
-              title: "Map Updated",
-              description: `Loaded ${data.length} waste data points`,
-            });
-          }
-        } else if (selectedTypes.length > 0) {
+        // Only show toast for significant updates - to avoid toast spam
+        if (heatmapData.length === 0) {
           toast({
-            title: "No Data Found",
-            description: "No waste data found for the selected filters",
+            title: "Map Ready",
+            description: `Displaying ${data.length} data points`,
           });
         }
       } catch (error) {
@@ -50,9 +42,8 @@ export const useHeatmapData = (selectedTypes: string[]) => {
       }
     };
     
-    // Use setTimeout to avoid blocking the main thread
-    const timerId = setTimeout(loadHeatmapData, 100);
-    return () => clearTimeout(timerId);
+    // Reduce timeout to load data faster
+    loadHeatmapData();
   }, [selectedTypes]);
 
   return { isLoading, heatmapData };
