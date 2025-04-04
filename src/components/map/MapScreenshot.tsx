@@ -66,9 +66,9 @@ const MapScreenshot = () => {
   };
   
   return (
-    <div className="absolute top-96 right-4 z-[2000] bg-slate-900/90 backdrop-blur-md p-3 rounded-lg shadow-lg border border-slate-700">
-      <div className="flex items-center justify-between gap-2">
-        <div className="text-xs font-medium text-white mr-2">Screenshot</div>
+    <div className="absolute top-60 right-4 z-[1000] bg-slate-900/90 backdrop-blur-md p-2 rounded-lg shadow-lg border border-slate-700">
+      <div className="flex items-center gap-2">
+        <div className="text-xs font-medium text-white">Screenshot</div>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
