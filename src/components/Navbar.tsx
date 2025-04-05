@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
-  Home, BarChart3, Info, Menu, X, Droplet, Rocket
+  Home, Globe, Info, Menu, X, Droplet, Rocket
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -12,7 +12,7 @@ const Navbar = () => {
 
   const navLinks = [
     { name: 'Home', path: '/', icon: <Home className="w-4 h-4" /> },
-    { name: 'Dashboard', path: '/dashboard', icon: <BarChart3 className="w-4 h-4" /> },
+    { name: 'Ocean View', path: '/ocean-view', icon: <Globe className="w-4 h-4" /> },
     { name: 'Get Started', path: '/sea-trash', icon: <Rocket className="w-4 h-4" /> },
     { name: 'About', path: '/about', icon: <Info className="w-4 h-4" /> },
   ];

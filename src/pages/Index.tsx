@@ -2,8 +2,8 @@
 import React from 'react';
 import Hero from '../components/Hero';
 import FeaturesSection from '../components/features/FeaturesSection';
-import DashboardPreview from '../components/dashboard/DashboardPreview';
 import GlobalMonitoringSection from '../components/map/GlobalMonitoringSection';
+import OceanViewSection from '../components/ocean-view/OceanViewSection';
 
 const Index = () => {
   return (
@@ -14,8 +14,8 @@ const Index = () => {
       {/* Features Section */}
       <FeaturesSection />
       
-      {/* Dashboard Preview */}
-      <DashboardPreview />
+      {/* Ocean View Preview */}
+      <OceanViewSection />
       
       {/* Map Preview */}
       <GlobalMonitoringSection />
