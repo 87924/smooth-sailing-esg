@@ -134,8 +134,8 @@ const OceanViewSection = () => {
             whileHover={{ y: -10 }}
           >
             <motion.img 
-              src="https://images.unsplash.com/photo-1610458897897-e4be2a7387ee?q=80&w=1000"
-              alt="3D Ocean visualization" 
+              src="/lovable-uploads/aa2fe0d8-2e11-4f86-bed5-6bbe3605dafc.png"
+              alt="Ocean pollution monitoring dashboard" 
               className="w-full h-full object-cover rounded-xl"
               initial={{ scale: 1.1 }}
               animate={{ scale: 1 }}
