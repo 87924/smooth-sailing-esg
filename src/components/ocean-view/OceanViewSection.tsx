@@ -134,7 +134,7 @@ const OceanViewSection = () => {
             whileHover={{ y: -10 }}
           >
             <motion.img 
-              src="/lovable-uploads/ada0f55e-f84b-4913-a10c-d8643fe9a4f2.png" 
+              src="https://images.unsplash.com/photo-1610458897897-e4be2a7387ee?q=80&w=1000"
               alt="3D Ocean visualization" 
               className="w-full h-full object-cover rounded-xl"
               initial={{ scale: 1.1 }}
