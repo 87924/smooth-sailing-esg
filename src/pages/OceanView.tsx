@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { Globe, Maximize } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Globe, Maximize, AlertCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from "@/components/ui/use-toast";
 
 const OceanView = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showAlert, setShowAlert] = useState(true);
 
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {
@@ -33,11 +34,52 @@ const OceanView = () => {
       setIsLoading(false);
     }, 1500);
 
-    return () => clearTimeout(timer);
+    // Auto-dismiss alert after 15 seconds
+    const alertTimer = setTimeout(() => {
+      setShowAlert(false);
+    }, 15000);
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(alertTimer);
+    };
   }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Oil Contamination Alert */}
+      <AnimatePresence>
+        {showAlert && (
+          <motion.div 
+            className="fixed top-4 right-4 max-w-[280px] z-50"
+            initial={{ x: 50, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 50, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="bg-amber-950/80 backdrop-blur-sm text-amber-50 p-3 rounded-lg shadow-lg border border-amber-700/50 flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-amber-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-semibold text-sm">Oil Contamination Alert</h4>
+                <p className="text-xs text-amber-200 mt-1">High concentration detected in monitored area</p>
+                <div className="mt-2">
+                  <span className="inline-block bg-amber-700/40 text-amber-100 text-xs px-2 py-0.5 rounded">
+                    API Connected
+                  </span>
+                </div>
+              </div>
+              <button 
+                className="text-amber-400 hover:text-amber-200 transition-colors ml-auto"
+                onClick={() => setShowAlert(false)}
+                aria-label="Close alert"
+              >
+                ×
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Main Content - Full Screen */}
       <main className="flex-1 relative">
         {isLoading && (
