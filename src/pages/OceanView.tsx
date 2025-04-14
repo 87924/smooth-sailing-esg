@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Globe, Maximize } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from "@/components/ui/use-toast";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 const OceanView = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -51,7 +52,14 @@ const OceanView = () => {
           </div>
         )}
         
-        <div className="absolute top-4 right-4 z-10">
+        <div className="absolute top-4 right-4 z-20 flex flex-col items-end gap-2">
+          <Alert className="w-auto max-w-[300px] bg-background/80 backdrop-blur-sm border-ocean/40 shadow-lg animate-fade-in">
+            <AlertTitle className="text-sm font-medium text-ocean">Ocean API Connected</AlertTitle>
+            <AlertDescription className="text-xs text-foreground/70">
+              Real-time ocean data is now being streamed
+            </AlertDescription>
+          </Alert>
+          
           <button 
             onClick={toggleFullScreen}
             className="p-2 bg-background/50 backdrop-blur-sm rounded-full hover:bg-background/80 transition-colors"
