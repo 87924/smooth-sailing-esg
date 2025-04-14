@@ -52,8 +52,8 @@ const OceanView = () => {
           </div>
         )}
         
-        <div className="absolute top-4 right-4 z-20 flex flex-col items-end gap-2">
-          <Alert className="w-auto max-w-[300px] bg-background/80 backdrop-blur-sm border-ocean/40 shadow-lg animate-fade-in">
+        <div className="fixed top-4 right-4 z-50 flex flex-col items-end gap-2 max-w-[300px]">
+          <Alert className="w-full bg-background/90 backdrop-blur-sm border-ocean/40 shadow-lg animate-fade-in">
             <AlertTitle className="text-sm font-medium text-ocean">Ocean API Connected</AlertTitle>
             <AlertDescription className="text-xs text-foreground/70">
               Real-time ocean data is now being streamed
